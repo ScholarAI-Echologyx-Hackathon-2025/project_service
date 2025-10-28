@@ -1,0 +1,189 @@
+spring:
+  application:
+    name: project-service
+  cloud:
+    discovery:
+      enabled: true
+
+  datasource:
+    url: jdbc:postgresql://project-db:5432/projectDB
+    username: ${PROJECT_DB_USER}
+    password: ${PROJECT_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 3
+      maximum-pool-size: 5
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+
+scholarai:
+  spring:
+    user-service-url: ${USER_SERVICE_URL:http://scholar-user-service:8081}
+  fastapi:
+    papersearch-url: ${FASTAPI_PAPERSEARCH_URL:http://scholar-paper-search:8001}
+    extractor-url: ${FASTAPI_EXTRACTOR_URL:http://scholar-extractor:8002}
+  notes:
+    images:
+      upload-path: ${NOTES_IMAGES_PATH:/app/uploads/note-images}
+      max-size: ${NOTES_IMAGES_MAX_SIZE:10485760} # 10MB
+  rabbitmq:
+    exchange: scholarai.exchange
+    web-search:
+      queue: scholarai.websearch.queue
+      routing-key: scholarai.websearch
+      completed-queue: scholarai.websearch.completed.queue
+      completed-routing-key: scholarai.websearch.completed
+    extraction:
+      queue: scholarai.extraction.queue
+      routing-key: scholarai.extraction
+      completed-queue: scholarai.extraction.completed.queue
+      completed-routing-key: scholarai.extraction.completed
+    gap-analysis:
+      request-queue: gap_analysis_requests
+      request-routing-key: gap.analysis.request
+      response-queue: gap_analysis_responses
+      response-exchange: gap_analysis_responses
+      response-routing-key: gap.analysis.response
+
+server:
+  port: 8083
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: project-service
+    prefer-ip-address: true
+
+
+management:
+  info:
+    git:
+      mode: full
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: "${spring.application.name}"
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1
+
+springdoc:
+  api-docs:
+    enabled: true
+  show-actuator: true
+  use-management-port: false
+  swagger-ui:
+    path: /docs
+    # Enable authorization persistence in browser
+    persistAuthorization: true
+    # Enable deep linking for swagger operations
+    deepLinking: true
+    # Display request duration in swagger UI
+    displayRequestDuration: true
+    # Enable filtering of operations
+    filter: true
+    # Show common extensions
+    showExtensions: true
+    # Sort operations alphabetically
+    operationsSorter: alpha
+    # Sort tags alphabetically
+    tagsSorter: alpha
+    # Enable try it out by default
+    tryItOutEnabled: true
+
+
+cors:
+  allowed-origins: "https://localhost:3000,https://example.com"
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: DEBUG
+
+    # quiet only Eureka-related logs
+    com.netflix.discovery: WARN
+    com.netflix.eureka: WARN
+    org.springframework.cloud.netflix.eureka: WARN
+    org.springframework.cloud.client.discovery: INFO
+
+gemini:
+  api-key: ${GEMINI_API_KEY:your-gemini-api-key-here}
+  api-url: ${GEMINI_API_URL:https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent}
+
+# Resilience4j Configuration for Gemini API - Optimized for Speed
+resilience4j:
+  retry:
+    instances:
+      gemini-api:
+        maxAttempts: 5                    # More attempts for better success rate
+        waitDuration: 200ms               # Much faster initial retry (200ms instead of 1s)
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 1.5 # Gentler backoff (1.5x instead of 2x)
+        maxWaitDuration: 2s               # Cap maximum wait time at 2 seconds
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException$ServiceUnavailable
+          - org.springframework.web.client.HttpServerErrorException$InternalServerError
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpClientErrorException$TooManyRequests
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+  circuitbreaker:
+    instances:
+      gemini-api:
+        slidingWindowSize: 5                    # Smaller window for faster detection
+        minimumNumberOfCalls: 3                 # Fewer calls needed to trigger
+        failureRateThreshold: 60                # Higher threshold (60% failures before opening)
+        waitDurationInOpenState: 10s            # Faster recovery (10s vs 30s)
+        permittedNumberOfCallsInHalfOpenState: 2 # Fewer test calls
+  ratelimiter:
+    instances:
+      gemini-api:
+        limitForPeriod: 15                      # Higher rate limit (15 vs 10)
+        limitRefreshPeriod: 500ms               # Faster refresh (500ms vs 1s)
+        timeoutDuration: 2s                     # Faster timeout (2s vs 5s)
+
