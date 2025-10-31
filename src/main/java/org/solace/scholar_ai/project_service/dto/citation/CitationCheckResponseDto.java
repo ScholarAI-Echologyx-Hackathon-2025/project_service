@@ -23,11 +23,11 @@ public class CitationCheckResponseDto {
 
     private String status; // QUEUED, RUNNING, DONE, ERROR
 
-    private String currentStep; // Current processing step
+    private String currentStep; 
 
     private Integer progressPercent; // 0-100
 
-    private String message; // Status message or error
+    private String message; 
 
     private LocalDateTime createdAt;
 
@@ -37,7 +37,7 @@ public class CitationCheckResponseDto {
 
     private CitationSummaryDto summary; // Normalized summary
 
-    private List<CitationIssueDto> issues; // Issues found (if completed)
+    private List<CitationIssueDto> issues; 
 
     @Data
     @Builder
@@ -47,37 +47,37 @@ public class CitationCheckResponseDto {
 
         private UUID id;
 
-        private UUID projectId; // NEW - for frontend convenience
+        private UUID projectId; 
 
-        private UUID documentId; // NEW - for frontend convenience
+        private UUID documentId; 
 
-        private String filename; // NEW - for frontend convenience
+        private String filename; 
 
-        private String issueType; // missing-citation, weak-citation, etc.
+        private String issueType; 
 
         private String severity; // low, medium, high
 
-        private String citationText; // The citation or claim text (snippet)
+        private String citationText; 
 
-        private Integer position; // Character position in document (from)
+        private Integer position; 
 
-        private Integer length; // Length of the problematic text
+        private Integer length; 
 
-        private Integer lineStart; // Starting line number
+        private Integer lineStart; 
 
-        private Integer lineEnd; // Ending line number
+        private Integer lineEnd; 
 
-        private String message; // Human-readable issue description
+        private String message; 
 
-        private List<String> citedKeys; // NEW - bibliography keys in the span
+        private List<String> citedKeys; 
 
-        private List<SuggestionDto> suggestions; // NEW - suggested citations
+        private List<SuggestionDto> suggestions; 
 
-        private Boolean resolved; // Whether user marked as resolved
+        private Boolean resolved; 
 
-        private String createdAt; // NEW - timestamp as string
+        private String createdAt; 
 
-        private List<EvidenceDto> evidence; // Supporting/contradicting evidence
+        private List<EvidenceDto> evidence; 
 
         @Data
         @Builder
@@ -112,15 +112,15 @@ public class CitationCheckResponseDto {
 
             private UUID id;
 
-            private Map<String, Object> source; // JSON source information
+            private Map<String, Object> source; 
 
-            private String matchedText; // Text that matched
+            private String matchedText; 
 
             private Double similarity; // 0-1 similarity score
 
             private Double supportScore; // 0-1 support confidence
 
-            private String extractedContext; // Surrounding context
+            private String extractedContext; 
         }
     }
 }
