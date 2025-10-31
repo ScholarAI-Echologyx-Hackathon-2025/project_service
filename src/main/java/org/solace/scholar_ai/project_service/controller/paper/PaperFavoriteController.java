@@ -13,6 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing paper favorites within projects.
+ * Provides endpoints for adding, removing, toggling, and retrieving favorite papers.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}/papers/favorites")
@@ -21,6 +25,15 @@ public class PaperFavoriteController {
 
     private final PaperFavoriteService favoriteService;
 
+    /**
+     * Adds a paper to favorites for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param paperId   The UUID of the paper
+     * @param request   The favorite request data
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing the favorite response
+     */
     @PostMapping("/{paperId}")
     public ResponseEntity<APIResponse<PaperFavoriteResponse>> addToFavorites(
             @PathVariable UUID projectId,
@@ -40,6 +53,14 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Removes a paper from favorites for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param paperId   The UUID of the paper
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity confirming removal
+     */
     @DeleteMapping("/{paperId}")
     public ResponseEntity<APIResponse<Void>> removeFromFavorites(
             @PathVariable UUID projectId, @PathVariable UUID paperId, @RequestHeader("X-User-ID") UUID userId) {
@@ -56,6 +77,15 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Toggles the favorite status of a paper (adds if not favorited, removes if favorited).
+     *
+     * @param projectId The UUID of the project
+     * @param paperId   The UUID of the paper
+     * @param request   The favorite request data
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing the favorite response or null if removed
+     */
     @PostMapping("/{paperId}/toggle")
     public ResponseEntity<APIResponse<PaperFavoriteResponse>> toggleFavorite(
             @PathVariable UUID projectId,
@@ -79,6 +109,13 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Retrieves all favorite papers for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing a list of favorite papers
+     */
     @GetMapping
     public ResponseEntity<APIResponse<List<PaperFavoriteResponse>>> getFavorites(
             @PathVariable UUID projectId, @RequestHeader("X-User-ID") UUID userId) {
@@ -95,6 +132,14 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Retrieves favorite papers for a project with pagination support.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @param pageable  Pagination parameters
+     * @return ResponseEntity containing a paginated list of favorite papers
+     */
     @GetMapping("/paginated")
     public ResponseEntity<APIResponse<Page<PaperFavoriteResponse>>> getFavoritesPaginated(
             @PathVariable UUID projectId, @RequestHeader("X-User-ID") UUID userId, Pageable pageable) {
@@ -111,6 +156,13 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Gets the count of favorite papers for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing the favorite count
+     */
     @GetMapping("/count")
     public ResponseEntity<APIResponse<Long>> getFavoriteCount(
             @PathVariable UUID projectId, @RequestHeader("X-User-ID") UUID userId) {
@@ -127,6 +179,14 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Checks if a paper is favorited in a project.
+     *
+     * @param projectId The UUID of the project
+     * @param paperId   The UUID of the paper
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing true if favorited, false otherwise
+     */
     @GetMapping("/{paperId}/status")
     public ResponseEntity<APIResponse<Boolean>> isFavorited(
             @PathVariable UUID projectId, @PathVariable UUID paperId, @RequestHeader("X-User-ID") UUID userId) {
@@ -143,6 +203,15 @@ public class PaperFavoriteController {
         }
     }
 
+    /**
+     * Updates favorite information for a paper in a project.
+     *
+     * @param projectId The UUID of the project
+     * @param paperId   The UUID of the paper
+     * @param request   The favorite update request data
+     * @param userId    The UUID of the user (from X-User-ID header)
+     * @return ResponseEntity containing the updated favorite response
+     */
     @PutMapping("/{paperId}")
     public ResponseEntity<APIResponse<PaperFavoriteResponse>> updateFavorite(
             @PathVariable UUID projectId,

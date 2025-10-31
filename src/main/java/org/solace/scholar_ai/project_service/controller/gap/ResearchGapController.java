@@ -21,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for research gap operations.
+ * REST controller for managing individual research gaps.
+ * Provides endpoints to retrieve research gaps by various criteria including
+ * gap analysis ID, paper ID, status, category, difficulty, and confidence
+ * scores.
  */
 @Slf4j
 @RestController
@@ -34,7 +37,10 @@ public class ResearchGapController {
     private final GapAnalysisMapper gapAnalysisMapper;
 
     /**
-     * Get research gap by ID.
+     * Retrieves a research gap by its ID.
+     *
+     * @param id The UUID of the research gap
+     * @return ResponseEntity containing the research gap
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get research gap", description = "Retrieve research gap by ID")
@@ -55,7 +61,11 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by gap analysis ID.
+     * Retrieves all research gaps for a specific gap analysis, ordered by order
+     * index.
+     *
+     * @param gapAnalysisId The UUID of the gap analysis
+     * @return ResponseEntity containing a list of research gaps
      */
     @GetMapping("/gap-analysis/{gapAnalysisId}")
     @Operation(
@@ -73,7 +83,11 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by gap analysis ID with pagination.
+     * Retrieves research gaps for a gap analysis with pagination support.
+     *
+     * @param gapAnalysisId The UUID of the gap analysis
+     * @param pageable      Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of research gaps
      */
     @GetMapping("/gap-analysis/{gapAnalysisId}/paginated")
     @Operation(
@@ -92,7 +106,10 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by paper ID.
+     * Retrieves all research gaps associated with a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of research gaps
      */
     @GetMapping("/paper/{paperId}")
     @Operation(summary = "Get research gaps by paper", description = "Retrieve all research gaps for a paper")
@@ -108,7 +125,11 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by paper ID with pagination.
+     * Retrieves research gaps for a paper with pagination support.
+     *
+     * @param paperId  The UUID of the paper
+     * @param pageable Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of research gaps
      */
     @GetMapping("/paper/{paperId}/paginated")
     @Operation(
@@ -126,7 +147,10 @@ public class ResearchGapController {
     }
 
     /**
-     * Get valid research gaps by paper ID.
+     * Retrieves only valid research gaps for a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of valid research gaps
      */
     @GetMapping("/paper/{paperId}/valid")
     @Operation(
@@ -144,7 +168,12 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by validation status.
+     * Retrieves research gaps filtered by validation status, ordered by creation
+     * date descending.
+     *
+     * @param status The validation status to filter by
+     * @return ResponseEntity containing a list of research gaps with the specified
+     *         status
      */
     @GetMapping("/status/{status}")
     @Operation(summary = "Get research gaps by status", description = "Retrieve research gaps by validation status")
@@ -160,7 +189,12 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by category.
+     * Retrieves research gaps filtered by category, ordered by creation date
+     * descending.
+     *
+     * @param category The category to filter by
+     * @return ResponseEntity containing a list of research gaps in the specified
+     *         category
      */
     @GetMapping("/category/{category}")
     @Operation(summary = "Get research gaps by category", description = "Retrieve research gaps by category")
@@ -176,7 +210,12 @@ public class ResearchGapController {
     }
 
     /**
-     * Get research gaps by estimated difficulty.
+     * Retrieves research gaps filtered by estimated difficulty, ordered by creation
+     * date descending.
+     *
+     * @param difficulty The difficulty level to filter by
+     * @return ResponseEntity containing a list of research gaps with the specified
+     *         difficulty
      */
     @GetMapping("/difficulty/{difficulty}")
     @Operation(
@@ -195,7 +234,11 @@ public class ResearchGapController {
     }
 
     /**
-     * Get high confidence research gaps.
+     * Retrieves research gaps with confidence scores above the specified minimum
+     * threshold.
+     *
+     * @param minConfidence The minimum confidence score threshold (default: 0.8)
+     * @return ResponseEntity containing a list of high-confidence research gaps
      */
     @GetMapping("/high-confidence")
     @Operation(

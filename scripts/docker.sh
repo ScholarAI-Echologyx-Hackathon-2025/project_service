@@ -3,7 +3,7 @@
 # Project Service Docker Management Script
 # This script provides commands to build, run, test, and manage the Docker containerized Project Service
 
-set -e  # Exit on any error
+set -e
 
 # Colors for output
 RED='\033[0;31m'
@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Configuration
 APP_NAME="project_service"
@@ -103,14 +103,12 @@ run() {
     
     create_network
     
-    # Start the container with dependencies
     docker-compose up -d
     
     print_success "Container started successfully!"
     print_status "Project Service is available at http://localhost:$DEFAULT_PORT"
     print_status "PostgreSQL is available at localhost:5435"
     
-    # Wait a moment and check if it started successfully
     sleep 20
     if ! docker ps | grep -q "$CONTAINER_NAME"; then
         print_error "Container failed to start. Check logs:"
@@ -163,7 +161,6 @@ clean() {
     print_status "Cleaning up..."
     stop
     
-    # Remove containers if they exist
     docker-compose down --rmi all --volumes
     
     print_success "Cleanup completed!"
@@ -237,5 +234,4 @@ main() {
     esac
 }
 
-# Run main function with all arguments
 main "$@"

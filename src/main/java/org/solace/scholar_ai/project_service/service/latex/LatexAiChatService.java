@@ -14,6 +14,11 @@ import org.solace.scholar_ai.project_service.repository.latex.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing LaTeX AI chat sessions and messages.
+ * Provides chat functionality for LaTeX documents with message history,
+ * suggestion tracking, and document checkpoints.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,7 +32,13 @@ public class LatexAiChatService {
     private final AIAssistanceService aiAssistanceService;
 
     /**
-     * Get or create a chat session for a document
+     * Gets or creates a chat session for a LaTeX document.
+     * If a session exists, returns it; otherwise creates a new one with a welcome message.
+     *
+     * @param documentId The UUID of the document
+     * @param projectId  The UUID of the project
+     * @return The chat session DTO
+     * @throws RuntimeException if the document is not found
      */
     public LatexAiChatSessionDto getOrCreateChatSession(UUID documentId, UUID projectId) {
         log.info("Getting or creating chat session for document: {}, project: {}", documentId, projectId);
@@ -62,7 +73,14 @@ public class LatexAiChatService {
     }
 
     /**
-     * Send a message to the chat (user message + AI response)
+     * Sends a message to the LaTeX AI chat and receives an AI response.
+     * Creates a user message, processes it with AI assistance, and creates an AI response message.
+     * Automatically creates a checkpoint before applying suggestions.
+     *
+     * @param documentId The UUID of the document
+     * @param request    The chat message request with user input and document context
+     * @return The AI response message DTO
+     * @throws RuntimeException if the chat session is not found
      */
     public LatexAiChatMessageDto sendMessage(UUID documentId, CreateLatexChatMessageRequest request) {
         log.info("Sending message to chat for document: {}", documentId);
@@ -140,7 +158,12 @@ public class LatexAiChatService {
     }
 
     /**
-     * Mark an AI suggestion as applied
+     * Marks an AI suggestion message as applied to the document.
+     * Updates the message status and creates a checkpoint with the updated content.
+     *
+     * @param messageId    The ID of the AI message to mark as applied
+     * @param contentAfter The document content after applying the suggestion
+     * @throws RuntimeException if the message is not found
      */
     public void markSuggestionAsApplied(Long messageId, String contentAfter) {
         log.info("Marking message {} as applied", messageId);

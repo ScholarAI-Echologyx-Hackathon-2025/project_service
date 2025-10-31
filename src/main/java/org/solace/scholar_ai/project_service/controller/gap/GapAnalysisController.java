@@ -21,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for gap analysis operations.
+ * REST controller for managing research gap analysis.
+ * Provides endpoints to initiate gap analysis for papers, retrieve analysis
+ * results,
+ * and manage gap analysis status and statistics.
  */
 @Slf4j
 @RestController
@@ -33,7 +36,11 @@ public class GapAnalysisController {
     private final GapAnalysisService gapAnalysisService;
 
     /**
-     * Initiate gap analysis for a paper.
+     * Initiates a gap analysis for a paper. The paper must be extracted before
+     * gap analysis can be performed.
+     *
+     * @param request The gap analysis request containing paper ID and configuration
+     * @return ResponseEntity containing the initiated gap analysis response
      */
     @PostMapping
     @Operation(summary = "Initiate gap analysis", description = "Start gap analysis for a paper")
@@ -54,7 +61,10 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analysis by ID.
+     * Retrieves a gap analysis by its ID.
+     *
+     * @param id The UUID of the gap analysis
+     * @return ResponseEntity containing the gap analysis
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get gap analysis", description = "Retrieve gap analysis by ID")
@@ -71,7 +81,10 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by paper ID.
+     * Retrieves all gap analyses associated with a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of gap analyses
      */
     @GetMapping("/paper/{paperId}")
     @Operation(summary = "Get gap analyses by paper", description = "Retrieve all gap analyses for a paper")
@@ -84,7 +97,11 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by paper ID with pagination.
+     * Retrieves gap analyses for a paper with pagination support.
+     *
+     * @param paperId  The UUID of the paper
+     * @param pageable Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of gap analyses
      */
     @GetMapping("/paper/{paperId}/paginated")
     @Operation(
@@ -100,7 +117,11 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by status.
+     * Retrieves gap analyses filtered by status.
+     *
+     * @param status The gap analysis status to filter by
+     * @return ResponseEntity containing a list of gap analyses with the specified
+     *         status
      */
     @GetMapping("/status/{status}")
     @Operation(summary = "Get gap analyses by status", description = "Retrieve gap analyses by status")
@@ -113,7 +134,12 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by status with pagination.
+     * Retrieves gap analyses filtered by status with pagination support.
+     *
+     * @param status   The gap analysis status to filter by
+     * @param pageable Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of gap analyses with the
+     *         specified status
      */
     @GetMapping("/status/{status}/paginated")
     @Operation(
@@ -129,7 +155,10 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get the latest gap analysis for a paper.
+     * Retrieves the most recent gap analysis for a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing the latest gap analysis
      */
     @GetMapping("/paper/{paperId}/latest")
     @Operation(summary = "Get latest gap analysis", description = "Retrieve the most recent gap analysis for a paper")
@@ -146,7 +175,10 @@ public class GapAnalysisController {
     }
 
     /**
-     * Retry failed gap analysis.
+     * Retries a failed gap analysis by its ID.
+     *
+     * @param id The UUID of the gap analysis to retry
+     * @return ResponseEntity containing the retried gap analysis response
      */
     @PostMapping("/{id}/retry")
     @Operation(summary = "Retry gap analysis", description = "Retry a failed gap analysis")
@@ -166,7 +198,11 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analysis request data by paper ID.
+     * Retrieves gap analysis request data and configuration for all analyses of a
+     * paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of gap analysis request data
      */
     @GetMapping("/paper/{paperId}/request-data")
     @Operation(
@@ -186,7 +222,9 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analysis statistics.
+     * Retrieves overall gap analysis statistics across all analyses.
+     *
+     * @return ResponseEntity containing gap analysis statistics
      */
     @GetMapping("/stats")
     @Operation(summary = "Get gap analysis statistics", description = "Retrieve gap analysis statistics")

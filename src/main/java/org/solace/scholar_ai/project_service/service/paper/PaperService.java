@@ -19,6 +19,10 @@ import org.solace.scholar_ai.project_service.repository.paper.PaperRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing paper information.
+ * Provides operations for creating, updating, retrieving, and querying research papers.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,17 +32,34 @@ public class PaperService {
     private final PaperRepository paperRepository;
     private final PaperMapper paperMapper;
 
+    /**
+     * Retrieves all papers from the database.
+     *
+     * @return A list of all paper DTOs
+     */
     public List<PaperDto> getAllPapers() {
         log.info("Fetching all papers");
         List<Paper> papers = paperRepository.findAll();
         return paperMapper.toDtoList(papers);
     }
 
+    /**
+     * Retrieves a paper by its ID.
+     *
+     * @param id The UUID of the paper
+     * @return An Optional containing the paper DTO if found
+     */
     public Optional<PaperDto> getPaperById(UUID id) {
         log.info("Fetching paper with ID: {}", id);
         return paperRepository.findById(id).map(paperMapper::toDto);
     }
 
+    /**
+     * Creates a new paper in the database.
+     *
+     * @param createPaperDto The paper creation data
+     * @return The created paper DTO
+     */
     public PaperDto createPaper(CreatePaperDto createPaperDto) {
         log.info("Creating new paper: {}", createPaperDto.title());
         Paper paper = paperMapper.fromCreateDto(createPaperDto);
@@ -47,6 +68,14 @@ public class PaperService {
         return paperMapper.toDto(savedPaper);
     }
 
+    /**
+     * Updates an existing paper with new information.
+     *
+     * @param id             The UUID of the paper to update
+     * @param updatePaperDto The paper update data
+     * @return The updated paper DTO
+     * @throws RuntimeException if the paper is not found
+     */
     public PaperDto updatePaper(UUID id, UpdatePaperDto updatePaperDto) {
         log.info("Updating paper with ID: {}", id);
 

@@ -13,8 +13,21 @@ import org.solace.scholar_ai.project_service.dto.todo.request.TodoFiltersReqDTO;
 import org.solace.scholar_ai.project_service.model.todo.Todo;
 import org.springframework.data.jpa.domain.Specification;
 
+/**
+ * Utility class for creating JPA Specification instances for Todo entity queries.
+ * Provides dynamic query building based on filter criteria for searching and filtering todos.
+ */
 public class TodoSpecification {
 
+    /**
+     * Creates a JPA Specification from filter criteria for querying Todo entities.
+     * Supports filtering by status, priority, category, due date range, tags,
+     * project ID, and keyword search in title/description.
+     *
+     * @param filters The filter criteria DTO containing various filter options
+     * @param userId  The user ID to filter todos by (always included in the query)
+     * @return A JPA Specification that can be used with TodoRepository to query todos
+     */
     public static Specification<Todo> fromFilters(TodoFiltersReqDTO filters, String userId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

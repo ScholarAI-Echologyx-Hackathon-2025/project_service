@@ -10,6 +10,11 @@ import org.solace.scholar_ai.project_service.service.latex.LatexAiChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for LaTeX AI chat functionality.
+ * Provides endpoints for managing chat sessions, sending messages, applying
+ * suggestions, and managing document checkpoints for LaTeX documents.
+ */
 @RestController
 @RequestMapping("/api/latex-ai-chat")
 @RequiredArgsConstructor
@@ -19,7 +24,11 @@ public class LatexAiChatController {
     private final LatexAiChatService latexAiChatService;
 
     /**
-     * Get or create a chat session for a document
+     * Gets or creates a chat session for a document.
+     *
+     * @param documentId The UUID of the document
+     * @param projectId  The UUID of the project
+     * @return ResponseEntity containing the chat session
      */
     @GetMapping("/session/{documentId}")
     public ResponseEntity<APIResponse<LatexAiChatSessionDto>> getChatSession(
@@ -46,7 +55,11 @@ public class LatexAiChatController {
     }
 
     /**
-     * Send a message to the chat
+     * Sends a message to the AI chat for a document and receives an AI response.
+     *
+     * @param documentId The UUID of the document
+     * @param request    The chat message request
+     * @return ResponseEntity containing the AI's response message
      */
     @PostMapping("/session/{documentId}/message")
     public ResponseEntity<APIResponse<LatexAiChatMessageDto>> sendMessage(
@@ -73,7 +86,10 @@ public class LatexAiChatController {
     }
 
     /**
-     * Get chat history for a document
+     * Retrieves the chat history for a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing a list of chat messages
      */
     @GetMapping("/session/{documentId}/messages")
     public ResponseEntity<APIResponse<List<LatexAiChatMessageDto>>> getChatHistory(@PathVariable UUID documentId) {
@@ -99,7 +115,11 @@ public class LatexAiChatController {
     }
 
     /**
-     * Mark an AI suggestion as applied
+     * Marks a suggestion as applied and stores the content after the change.
+     *
+     * @param messageId    The ID of the message containing the suggestion
+     * @param contentAfter The document content after applying the suggestion
+     * @return ResponseEntity confirming the suggestion was applied
      */
     @PostMapping("/message/{messageId}/apply")
     public ResponseEntity<APIResponse<String>> applySuggestion(
@@ -126,7 +146,13 @@ public class LatexAiChatController {
     }
 
     /**
-     * Create a document checkpoint
+     * Creates a checkpoint for a document to enable restoration to a previous
+     * state.
+     *
+     * @param documentId The UUID of the document
+     * @param sessionId  The UUID of the chat session
+     * @param request    The checkpoint creation request with message ID and content
+     * @return ResponseEntity containing the created checkpoint
      */
     @PostMapping("/document/{documentId}/checkpoint")
     public ResponseEntity<APIResponse<LatexDocumentCheckpointDto>> createCheckpoint(
@@ -159,7 +185,10 @@ public class LatexAiChatController {
     }
 
     /**
-     * Restore document to a checkpoint
+     * Restores a document to a specific checkpoint state.
+     *
+     * @param checkpointId The ID of the checkpoint to restore to
+     * @return ResponseEntity containing the restored document content
      */
     @PostMapping("/checkpoint/{checkpointId}/restore")
     public ResponseEntity<APIResponse<String>> restoreToCheckpoint(@PathVariable Long checkpointId) {
@@ -185,7 +214,10 @@ public class LatexAiChatController {
     }
 
     /**
-     * Get checkpoints for a document
+     * Retrieves all checkpoints for a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing a list of checkpoints
      */
     @GetMapping("/document/{documentId}/checkpoints")
     public ResponseEntity<APIResponse<List<LatexDocumentCheckpointDto>>> getCheckpoints(@PathVariable UUID documentId) {

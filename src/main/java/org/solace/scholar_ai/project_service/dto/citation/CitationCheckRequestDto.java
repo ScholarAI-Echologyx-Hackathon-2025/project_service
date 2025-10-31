@@ -17,15 +17,14 @@ public class CitationCheckRequestDto {
 
     private UUID documentId;
 
-    private List<UUID> selectedPaperIds; // NEW - specific papers to use for local corpus
+    private List<UUID> selectedPaperIds;
+    private String content;
 
-    private String content; // LaTeX content to check
+    private String filename;
 
-    private String filename; // Optional filename for context
+    private String contentHash;
 
-    private String contentHash; // NEW - SHA256 hash of content for caching
-
-    private Boolean forceRecheck; // Force recheck even if recent check exists
+    private Boolean forceRecheck;
 
     private Options options;
 
@@ -36,21 +35,21 @@ public class CitationCheckRequestDto {
     public static class Options {
 
         @Builder.Default
-        private Boolean checkLocal = true; // Check against local papers
+        private Boolean checkLocal = true;
 
         @Builder.Default
-        private Boolean checkWeb = true; // Check against web sources
+        private Boolean checkWeb = true;
 
         @Builder.Default
-        private Double similarityThreshold = 0.85; // Minimum similarity for evidence
+        private Double similarityThreshold = 0.85;
 
         @Builder.Default
-        private Double plagiarismThreshold = 0.92; // Minimum similarity for plagiarism detection
+        private Double plagiarismThreshold = 0.92;
 
         @Builder.Default
-        private Integer maxEvidencePerIssue = 5; // Max evidence items per issue
+        private Integer maxEvidencePerIssue = 5;
 
         @Builder.Default
-        private Boolean strictMode = true; // More stringent checking
+        private Boolean strictMode = true;
     }
 }

@@ -7,6 +7,12 @@ import org.solace.scholar_ai.project_service.service.latex.AIAssistanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for AI assistance features for LaTeX documents.
+ * Provides endpoints for document review, writing suggestions, compliance
+ * checking, citation validation, corrections, chat interactions, and
+ * final review generation.
+ */
 @RestController
 @RequestMapping("/api/ai-assistance")
 @RequiredArgsConstructor
@@ -15,7 +21,10 @@ public class AIAssistanceController {
     private final AIAssistanceService aiAssistanceService;
 
     /**
-     * Review document content for quality assurance
+     * Reviews a document and provides feedback on content, structure, and quality.
+     *
+     * @param request Map containing "content" (required)
+     * @return ResponseEntity containing review results
      */
     @PostMapping("/review")
     public ResponseEntity<APIResponse<Map<String, Object>>> reviewDocument(@RequestBody Map<String, String> request) {
@@ -39,7 +48,10 @@ public class AIAssistanceController {
     }
 
     /**
-     * Generate contextual writing suggestions
+     * Generates contextual writing suggestions based on content and context.
+     *
+     * @param request Map containing "content" (required) and "context" (optional)
+     * @return ResponseEntity containing writing suggestions
      */
     @PostMapping("/suggestions")
     public ResponseEntity<APIResponse<String>> generateSuggestions(@RequestBody Map<String, String> request) {
@@ -65,7 +77,10 @@ public class AIAssistanceController {
     }
 
     /**
-     * Check compliance with conference/journal rules
+     * Checks document compliance with venue-specific requirements.
+     *
+     * @param request Map containing "content" (required) and "venue" (optional)
+     * @return ResponseEntity containing compliance check results
      */
     @PostMapping("/compliance")
     public ResponseEntity<APIResponse<Map<String, Object>>> checkCompliance(@RequestBody Map<String, String> request) {
@@ -91,7 +106,10 @@ public class AIAssistanceController {
     }
 
     /**
-     * Validate citation format
+     * Validates citations in the document content.
+     *
+     * @param request Map containing "content" (required)
+     * @return ResponseEntity containing citation validation results
      */
     @PostMapping("/citations/validate")
     public ResponseEntity<APIResponse<Map<String, Object>>> validateCitations(
@@ -117,7 +135,10 @@ public class AIAssistanceController {
     }
 
     /**
-     * Generate AI corrections with diff visualization
+     * Generates AI-powered corrections for document content.
+     *
+     * @param request Map containing "content" (required)
+     * @return ResponseEntity containing correction suggestions
      */
     @PostMapping("/corrections")
     public ResponseEntity<APIResponse<Map<String, Object>>> generateCorrections(
@@ -143,7 +164,11 @@ public class AIAssistanceController {
     }
 
     /**
-     * Process chat-based AI requests for LaTeX editing
+     * Processes a chat request with context from selected text and full document.
+     *
+     * @param request Map containing "userRequest" (required), "selectedText"
+     *                (optional), and "fullDocument" (optional)
+     * @return ResponseEntity containing the AI's chat response
      */
     @PostMapping("/chat")
     public ResponseEntity<APIResponse<String>> processChatRequest(@RequestBody Map<String, String> request) {
@@ -171,7 +196,10 @@ public class AIAssistanceController {
     }
 
     /**
-     * Generate comprehensive final review of LaTeX document
+     * Generates a comprehensive final review of the document.
+     *
+     * @param request Map containing "content" (required)
+     * @return ResponseEntity containing the comprehensive review
      */
     @PostMapping("/final-review")
     public ResponseEntity<APIResponse<String>> generateFinalReview(@RequestBody Map<String, String> request) {

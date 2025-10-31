@@ -19,6 +19,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing reading list items within projects.
+ * Provides endpoints for adding, updating, deleting, and filtering reading list
+ * items,
+ * as well as managing bookmarks, ratings, notes, and retrieving
+ * recommendations.
+ */
 @Slf4j
 @RestController
 @RequestMapping("api/v1/projects/{projectId}/reading-list")
@@ -28,7 +35,21 @@ public class ReadingListController {
     private final ReadingListItemService readingListItemService;
 
     /**
-     * Get all reading list items for a project with filtering and pagination
+     * Retrieves all reading list items for a project with filtering and pagination.
+     *
+     * @param projectId     The UUID of the project
+     * @param status        Optional filter by status
+     * @param priority      Optional filter by priority
+     * @param difficulty    Optional filter by difficulty
+     * @param relevance     Optional filter by relevance
+     * @param isBookmarked  Optional filter by bookmark status
+     * @param isRecommended Optional filter by recommendation status
+     * @param search        Optional search query
+     * @param sortBy        Sort field (default: "addedAt")
+     * @param sortOrder     Sort order (default: "desc")
+     * @param page          Page number (default: 1)
+     * @param limit         Items per page (default: 20, max: 100)
+     * @return ResponseEntity containing paginated reading list items
      */
     @GetMapping
     public ResponseEntity<APIResponse<Map<String, Object>>> getReadingList(
@@ -47,7 +68,6 @@ public class ReadingListController {
         try {
             log.info("Get reading list for project {}", projectId);
 
-            // Validate pagination parameters
             if (page < 1) page = 1;
             if (limit < 1 || limit > 100) limit = 20;
 
@@ -95,7 +115,11 @@ public class ReadingListController {
     }
 
     /**
-     * Add a new paper to the reading list
+     * Adds a new paper to the reading list for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param dto       The reading list item data
+     * @return ResponseEntity containing the created reading list item
      */
     @PostMapping
     public ResponseEntity<APIResponse<ReadingListItemDto>> addReadingListItem(
@@ -121,7 +145,12 @@ public class ReadingListController {
     }
 
     /**
-     * Update a reading list item
+     * Updates an existing reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param dto       The updated reading list item data
+     * @return ResponseEntity containing the updated reading list item
      */
     @PutMapping("/{itemId}")
     public ResponseEntity<APIResponse<ReadingListItemDto>> updateReadingListItem(
@@ -150,7 +179,12 @@ public class ReadingListController {
     }
 
     /**
-     * Update reading list item status
+     * Updates the status of a reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param request   Map containing the "status" key with new status value
+     * @return ResponseEntity containing the updated reading list item
      */
     @PatchMapping("/{itemId}/status")
     public ResponseEntity<APIResponse<ReadingListItemDto>> updateStatus(
@@ -188,7 +222,13 @@ public class ReadingListController {
     }
 
     /**
-     * Update reading progress
+     * Updates the reading progress percentage for a reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param request   Map containing the "readingProgress" key with progress
+     *                  percentage (0-100)
+     * @return ResponseEntity containing the updated reading list item
      */
     @PatchMapping("/{itemId}/progress")
     public ResponseEntity<APIResponse<ReadingListItemDto>> updateProgress(
@@ -227,7 +267,11 @@ public class ReadingListController {
     }
 
     /**
-     * Delete a reading list item
+     * Deletes a reading list item from a project.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item to delete
+     * @return ResponseEntity confirming deletion
      */
     @DeleteMapping("/{itemId}")
     public ResponseEntity<APIResponse<String>> deleteReadingListItem(
@@ -256,7 +300,11 @@ public class ReadingListController {
     }
 
     /**
-     * Get reading list statistics
+     * Retrieves statistics for a project's reading list.
+     *
+     * @param projectId The UUID of the project
+     * @param timeRange Optional time range filter
+     * @return ResponseEntity containing reading list statistics
      */
     @GetMapping("/stats")
     public ResponseEntity<APIResponse<Map<String, Object>>> getReadingListStats(
@@ -283,7 +331,13 @@ public class ReadingListController {
     }
 
     /**
-     * Get recommended items
+     * Retrieves recommended reading list items for a project.
+     *
+     * @param projectId   The UUID of the project
+     * @param limit       Maximum number of recommendations (default: 10)
+     * @param difficulty  Optional filter by difficulty level
+     * @param excludeRead Whether to exclude already read items (default: true)
+     * @return ResponseEntity containing a list of recommended reading list items
      */
     @GetMapping("/recommendations")
     public ResponseEntity<APIResponse<List<ReadingListItemDto>>> getRecommendations(
@@ -312,7 +366,12 @@ public class ReadingListController {
     }
 
     /**
-     * Add or update notes for a reading list item
+     * Adds or updates notes for a reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param request   Map containing the "note" key with note content
+     * @return ResponseEntity containing the updated reading list item
      */
     @PostMapping("/{itemId}/notes")
     public ResponseEntity<APIResponse<ReadingListItemDto>> updateNotes(
@@ -350,7 +409,13 @@ public class ReadingListController {
     }
 
     /**
-     * Rate a completed reading list item
+     * Rates a completed reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param request   Map containing the "rating" key with rating value (typically
+     *                  1-5)
+     * @return ResponseEntity containing the updated reading list item
      */
     @PatchMapping("/{itemId}/rating")
     public ResponseEntity<APIResponse<ReadingListItemDto>> rateItem(
@@ -384,7 +449,11 @@ public class ReadingListController {
     }
 
     /**
-     * Toggle bookmark status
+     * Toggles the bookmark status of a reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @return ResponseEntity containing the updated reading list item
      */
     @PutMapping("/{itemId}/bookmark")
     public ResponseEntity<APIResponse<ReadingListItemDto>> toggleBookmark(

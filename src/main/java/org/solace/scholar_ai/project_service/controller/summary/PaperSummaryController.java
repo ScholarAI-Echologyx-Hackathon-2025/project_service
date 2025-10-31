@@ -17,6 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing paper summaries.
+ * Provides endpoints for generating, regenerating, retrieving, and validating
+ * AI-generated summaries of research papers.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/papers/{paperId}/summary")
@@ -28,6 +33,13 @@ public class PaperSummaryController {
     private final PaperSummaryRepository summaryRepository;
     private final PaperRepository paperRepository;
 
+    /**
+     * Generates a summary for a paper. Returns existing summary if one already
+     * exists.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing the generated or existing summary
+     */
     @Operation(summary = "Generate summary for a paper")
     @PostMapping("/generate")
     public ResponseEntity<PaperSummaryResponseDto> generateSummary(@PathVariable UUID paperId) {
@@ -45,31 +57,41 @@ public class PaperSummaryController {
             PaperSummary summary = summaryGenerationService.generateSummary(paperId);
             return ResponseEntity.ok(PaperSummaryResponseDto.fromEntity(summary));
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            // Handle race condition: another process created the summary while we were
-            // generating
+
             log.info("Race condition detected for paper: {}, another process created the summary", paperId);
             if (summaryRepository.findByPaperId(paperId).isPresent()) {
                 PaperSummary existingSummary =
                         summaryRepository.findByPaperId(paperId).get();
                 return ResponseEntity.ok(PaperSummaryResponseDto.fromEntity(existingSummary));
             }
-            // If summary still doesn't exist, re-throw the exception
+
             throw e;
         }
     }
 
+    /**
+     * Regenerates a summary for a paper, deleting any existing summary first.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing the newly generated summary
+     */
     @Operation(summary = "Regenerate summary for a paper")
     @PostMapping("/regenerate")
     public ResponseEntity<PaperSummaryResponseDto> regenerateSummary(@PathVariable UUID paperId) {
         log.info("Received request to regenerate summary for paper: {}", paperId);
 
-        // Delete existing summary if present
         summaryRepository.findByPaperId(paperId).ifPresent(summaryRepository::delete);
 
         PaperSummary summary = summaryGenerationService.generateSummary(paperId);
         return ResponseEntity.ok(PaperSummaryResponseDto.fromEntity(summary));
     }
 
+    /**
+     * Retrieves the summary for a paper if it exists.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing the summary, or 404 if not found
+     */
     @Operation(summary = "Get summary for a paper")
     @GetMapping
     public ResponseEntity<PaperSummaryResponseDto> getSummary(@PathVariable UUID paperId) {
@@ -80,6 +102,14 @@ public class PaperSummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Updates the validation status and optional notes for a paper summary.
+     *
+     * @param paperId The UUID of the paper
+     * @param status  The validation status to set
+     * @param notes   Optional validation notes
+     * @return ResponseEntity containing the updated summary, or 404 if not found
+     */
     @Operation(summary = "Update validation status")
     @PatchMapping("/validation")
     public ResponseEntity<PaperSummary> updateValidationStatus(
@@ -99,6 +129,13 @@ public class PaperSummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Gets the detailed summarization status for a paper including timestamps and
+     * errors.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing summarization status details
+     */
     @Operation(summary = "Check if paper is summarized")
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getSummarizationStatus(@PathVariable UUID paperId) {
@@ -125,6 +162,12 @@ public class PaperSummaryController {
         }
     }
 
+    /**
+     * Checks if a paper has been summarized (simple boolean check).
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing true if summarized, false otherwise
+     */
     @Operation(summary = "Check if paper is summarized")
     @GetMapping("/summarized")
     public ResponseEntity<Boolean> isPaperSummarized(@PathVariable UUID paperId) {
@@ -143,6 +186,12 @@ public class PaperSummaryController {
         }
     }
 
+    /**
+     * Gets only the summarization status string for a paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a map with the status string
+     */
     @Operation(summary = "Get summarization status only")
     @GetMapping("/status-only")
     public ResponseEntity<Map<String, String>> getSummarizationStatusOnly(@PathVariable UUID paperId) {

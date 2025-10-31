@@ -16,7 +16,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/** Entity mapping for project table. */
+/**
+ * Entity representing a research project.
+ * Tracks project metadata, status, progress metrics, and organizational information
+ * like topics, tags, and user associations.
+ */
 @Getter
 @Setter
 @Entity
@@ -24,10 +28,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "projects")
 public class Project {
 
+    /**
+     * Enumeration representing the lifecycle status of a research project.
+     */
     public enum Status {
+        /** Project is active and in progress. */
         ACTIVE,
+        /** Project is temporarily paused. */
         PAUSED,
+        /** Project has been completed. */
         COMPLETED,
+        /** Project has been archived. */
         ARCHIVED
     }
 

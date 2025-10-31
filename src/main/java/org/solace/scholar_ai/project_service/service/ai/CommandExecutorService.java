@@ -17,6 +17,10 @@ import org.solace.scholar_ai.project_service.dto.todo.response.TodoResponseDTO;
 import org.solace.scholar_ai.project_service.service.todo.TodoService;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for executing parsed commands from natural language input.
+ * Routes commands to appropriate handlers and executes the requested operations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +28,13 @@ public class CommandExecutorService {
     private final TodoService todoService;
     private final GeminiGeneralService geminiGeneralService;
 
+    /**
+     * Executes a parsed command and returns the execution results.
+     *
+     * @param command The parsed command to execute
+     * @param userId  The ID of the user executing the command
+     * @return A map containing execution results, natural response, and any errors
+     */
     public Map<String, Object> executeCommand(ParsedCommand command, String userId) {
         Map<String, Object> result = new HashMap<>();
 

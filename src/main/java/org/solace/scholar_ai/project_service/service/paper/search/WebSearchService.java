@@ -23,6 +23,11 @@ import org.solace.scholar_ai.project_service.service.paper.PaperPersistenceServi
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing academic paper web search operations.
+ * Initiates searches across multiple sources, tracks search status,
+ * and processes completed search results.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,6 +40,14 @@ public class WebSearchService {
     private final UserNotificationClient notificationClient;
     private final ProjectRepository projectRepository;
 
+    /**
+     * Initiates a web search for academic papers.
+     * Creates a search operation record and sends the search request to the paper search service.
+     *
+     * @param requestDto The web search request containing query terms, domain, and batch size
+     * @return WebSearchResponseDto with correlation ID and initial status
+     * @throws RuntimeException if the search request cannot be processed
+     */
     @Transactional
     public WebSearchResponseDto initiateWebSearch(WebSearchRequestDto requestDto) {
         String correlationId = UUID.randomUUID().toString();
@@ -93,6 +106,13 @@ public class WebSearchService {
         }
     }
 
+    /**
+     * Updates search results when a web search operation completes.
+     * Persists papers to the database and sends user notifications.
+     *
+     * @param event The web search completed event containing search results
+     * @throws RuntimeException if paper persistence fails
+     */
     @Transactional
     public void updateSearchResults(WebSearchCompletedEvent event) {
         String correlationId = event.correlationId();

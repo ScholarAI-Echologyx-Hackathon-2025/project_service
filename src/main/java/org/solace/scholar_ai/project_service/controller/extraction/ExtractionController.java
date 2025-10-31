@@ -20,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for managing paper extraction operations
+ * REST controller for managing paper content extraction.
+ * Provides endpoints to trigger extraction jobs, check extraction status,
+ * and retrieve extracted content such as figures and tables from research
+ * papers.
  */
 @Slf4j
 @RestController
@@ -31,6 +34,14 @@ public class ExtractionController {
 
     private final ExtractionService extractionService;
 
+    /**
+     * Triggers content extraction for a paper using its PDF content URL.
+     *
+     * @param request The extraction request containing paper ID and extraction
+     *                options
+     * @return ResponseEntity containing the extraction job response with job ID and
+     *         status
+     */
     @Operation(
             summary = "Trigger paper extraction",
             description = "Triggers content extraction for a paper using its PDF content URL")
@@ -53,6 +64,13 @@ public class ExtractionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Gets the current extraction status and progress for a paper.
+     *
+     * @param paperId The ID of the paper to check
+     * @return ResponseEntity containing the extraction status and progress
+     *         information
+     */
     @Operation(
             summary = "Get extraction status",
             description = "Gets the current extraction status and progress for a paper")
@@ -73,6 +91,13 @@ public class ExtractionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Gets only the extraction status string for a paper, without additional
+     * details.
+     *
+     * @param paperId The ID of the paper to check
+     * @return ResponseEntity containing a map with the status string
+     */
     @Operation(
             summary = "Get extraction status only",
             description = "Gets only the extraction status string for a paper")
@@ -96,6 +121,16 @@ public class ExtractionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Triggers content extraction for a paper with default extraction options.
+     * All extraction options (text, figures, tables, etc.) are enabled by default.
+     *
+     * @param paperId         The ID of the paper to extract
+     * @param asyncProcessing Whether to process extraction asynchronously (default:
+     *                        true)
+     * @return ResponseEntity containing the extraction job response with job ID and
+     *         status
+     */
     @Operation(
             summary = "Trigger extraction with default options",
             description = "Triggers content extraction for a paper with default extraction options")
@@ -114,18 +149,8 @@ public class ExtractionController {
 
         log.info("Received extraction request for paper ID: {} (async: {})", paperId, asyncProcessing);
 
-        // Create default extraction request
-        ExtractionRequest request = new ExtractionRequest(
-                paperId,
-                true, // extractText
-                true, // extractFigures
-                true, // extractTables
-                true, // extractEquations
-                true, // extractCode
-                true, // extractReferences
-                true, // useOcr
-                true, // detectEntities
-                asyncProcessing);
+        ExtractionRequest request =
+                new ExtractionRequest(paperId, true, true, true, true, true, true, true, true, asyncProcessing);
 
         ExtractionResponse response = extractionService.triggerExtraction(request);
 
@@ -134,6 +159,12 @@ public class ExtractionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Checks if a paper's content has been successfully extracted.
+     *
+     * @param paperId The ID of the paper to check
+     * @return ResponseEntity containing true if extracted, false otherwise
+     */
     @Operation(
             summary = "Check if paper is extracted",
             description = "Returns a boolean indicating whether the paper content has been successfully extracted")
@@ -154,6 +185,13 @@ public class ExtractionController {
         return ResponseEntity.ok(isExtracted);
     }
 
+    /**
+     * Retrieves all extracted figures for a paper including image path, caption,
+     * and page number.
+     *
+     * @param paperId The ID of the paper
+     * @return ResponseEntity containing a list of extracted figures
+     */
     @Operation(
             summary = "Get extracted figures for a paper",
             description = "Retrieves all extracted figures for a paper including image path, caption, and page number")
@@ -176,6 +214,13 @@ public class ExtractionController {
         return ResponseEntity.ok(figures);
     }
 
+    /**
+     * Retrieves all extracted tables for a paper including CSV path, caption, and
+     * page number.
+     *
+     * @param paperId The ID of the paper
+     * @return ResponseEntity containing a list of extracted tables
+     */
     @Operation(
             summary = "Get extracted tables for a paper",
             description = "Retrieves all extracted tables for a paper including CSV path, caption, and page number")

@@ -12,6 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing document versions.
+ * Provides endpoints to create versions, retrieve version history,
+ * and navigate between versions (latest, previous, next).
+ */
 @RestController
 @RequestMapping("/api/document-versions")
 @RequiredArgsConstructor
@@ -20,6 +25,15 @@ public class DocumentVersionController {
 
     private final DocumentVersionService documentVersionService;
 
+    /**
+     * Creates a new version snapshot of a document.
+     *
+     * @param documentId  The UUID of the document
+     * @param commitMessage The commit message for this version
+     * @param content     The document content to snapshot
+     * @param createdBy   Optional UUID of the user creating the version
+     * @return ResponseEntity containing the created version
+     */
     @PostMapping("/{documentId}/versions")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> createVersion(
             @PathVariable UUID documentId,
@@ -46,6 +60,12 @@ public class DocumentVersionController {
         }
     }
 
+    /**
+     * Retrieves the complete version history for a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing a list of all versions
+     */
     @GetMapping("/{documentId}/versions")
     public ResponseEntity<APIResponse<List<DocumentVersionDTO>>> getVersionHistory(@PathVariable UUID documentId) {
         try {
@@ -66,6 +86,13 @@ public class DocumentVersionController {
         }
     }
 
+    /**
+     * Retrieves a specific version of a document by version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The version number to retrieve
+     * @return ResponseEntity containing the document version, or 404 if not found
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {
@@ -96,6 +123,12 @@ public class DocumentVersionController {
         }
     }
 
+    /**
+     * Retrieves the latest version of a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing the latest version, or 404 if no versions exist
+     */
     @GetMapping("/{documentId}/versions/latest")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getLatestVersion(@PathVariable UUID documentId) {
         try {
@@ -124,6 +157,13 @@ public class DocumentVersionController {
         }
     }
 
+    /**
+     * Retrieves the previous version relative to the specified version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The reference version number
+     * @return ResponseEntity containing the previous version, or 404 if none exists
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}/previous")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getPreviousVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {
@@ -158,6 +198,13 @@ public class DocumentVersionController {
         }
     }
 
+    /**
+     * Retrieves the next version relative to the specified version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The reference version number
+     * @return ResponseEntity containing the next version, or 404 if none exists
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}/next")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getNextVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {

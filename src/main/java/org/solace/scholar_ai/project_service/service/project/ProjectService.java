@@ -13,6 +13,11 @@ import org.solace.scholar_ai.project_service.repository.project.ProjectRepositor
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing research projects.
+ * Provides operations for creating, updating, deleting, and querying projects,
+ * as well as managing project status and metrics.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,7 +29,11 @@ public class ProjectService {
     private final ProjectDeletionService projectDeletionService;
 
     /**
-     * Create a new project
+     * Creates a new research project.
+     *
+     * @param createProjectDto The project creation data
+     * @param userId           The UUID of the user creating the project
+     * @return The created project DTO
      */
     public ProjectDto createProject(CreateProjectDto createProjectDto, UUID userId) {
         log.info("Creating new project: {} for user: {}", createProjectDto.name(), userId);
@@ -38,7 +47,12 @@ public class ProjectService {
     }
 
     /**
-     * Get project by ID
+     * Retrieves a project by its ID, ensuring it belongs to the specified user.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user
+     * @return The project DTO
+     * @throws RuntimeException if project not found or access denied
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public ProjectDto getProjectById(UUID projectId, UUID userId) {
@@ -52,7 +66,10 @@ public class ProjectService {
     }
 
     /**
-     * Get all projects for a user
+     * Retrieves all projects for a specific user.
+     *
+     * @param userId The UUID of the user
+     * @return A list of project DTOs
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public List<ProjectDto> getProjectsByUserId(UUID userId) {
@@ -63,7 +80,11 @@ public class ProjectService {
     }
 
     /**
-     * Get projects by status for a user
+     * Retrieves projects filtered by status for a specific user.
+     *
+     * @param userId The UUID of the user
+     * @param status The project status to filter by
+     * @return A list of project DTOs matching the status
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public List<ProjectDto> getProjectsByUserIdAndStatus(UUID userId, Project.Status status) {
@@ -74,7 +95,10 @@ public class ProjectService {
     }
 
     /**
-     * Get starred projects for a user
+     * Retrieves all starred projects for a specific user.
+     *
+     * @param userId The UUID of the user
+     * @return A list of starred project DTOs
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public List<ProjectDto> getStarredProjects(UUID userId) {
@@ -85,7 +109,13 @@ public class ProjectService {
     }
 
     /**
-     * Update an existing project
+     * Updates an existing project, ensuring it belongs to the specified user.
+     *
+     * @param projectId        The UUID of the project to update
+     * @param updateProjectDto The project update data
+     * @param userId           The UUID of the user
+     * @return The updated project DTO
+     * @throws RuntimeException if project not found or access denied
      */
     public ProjectDto updateProject(UUID projectId, UpdateProjectDto updateProjectDto, UUID userId) {
         log.info("Updating project with ID: {} for user: {}", projectId, userId);

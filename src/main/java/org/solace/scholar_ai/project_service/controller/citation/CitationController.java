@@ -19,6 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+/**
+ * REST controller for citation checking and validation.
+ * Provides endpoints to start, monitor, and manage citation check jobs,
+ * including Server-Sent Events (SSE) for real-time progress updates.
+ */
 @RestController
 @RequestMapping("/api/citations")
 public class CitationController {
@@ -30,7 +35,11 @@ public class CitationController {
     private CitationCheckService citationCheckService;
 
     /**
-     * Start a new citation check (Frontend expects /jobs endpoint)
+     * Starts a new citation check job for a document.
+     *
+     * @param request The citation check request containing document and project
+     *                information
+     * @return ResponseEntity containing the citation check job details
      */
     @PostMapping("/jobs")
     public ResponseEntity<CitationCheckResponseDto> startCitationCheck(@RequestBody CitationCheckRequestDto request) {
@@ -45,7 +54,10 @@ public class CitationController {
     }
 
     /**
-     * Get citation check by job ID (Frontend expects /jobs/{jobId})
+     * Retrieves the status and details of a citation check job by its ID.
+     *
+     * @param jobId The UUID of the citation check job
+     * @return ResponseEntity containing the job details, or 404 if not found
      */
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<CitationCheckResponseDto> getCitationJob(@PathVariable UUID jobId) {
@@ -60,27 +72,31 @@ public class CitationController {
     }
 
     /**
-     * SSE streaming endpoint for real-time citation job updates
+     * Streams real-time updates for a citation check job using Server-Sent Events
+     * (SSE).
+     * Provides status updates, issues, summary, and completion events as the job
+     * progresses.
+     *
+     * @param jobId    The UUID of the citation check job to stream
+     * @param response The HTTP response object for setting SSE headers
+     * @return SseEmitter for streaming job events
      */
     @GetMapping(path = "/jobs/{jobId}/events", produces = "text/event-stream")
     public SseEmitter streamCitationJob(@PathVariable UUID jobId, HttpServletResponse response) {
         try {
             logger.info("Starting SSE stream for citation job {}", jobId);
 
-            // Set headers to prevent proxy buffering
             response.setHeader("Cache-Control", "no-cache, no-transform");
             response.setHeader("X-Accel-Buffering", "no");
             response.setContentType("text/event-stream");
             response.setCharacterEncoding("UTF-8");
 
-            SseEmitter emitter = new SseEmitter(0L); // No timeout
+            SseEmitter emitter = new SseEmitter(0L);
 
-            // Check if job is already completed
             Optional<CitationCheckResponseDto> existingJob = citationCheckService.getCitationCheck(jobId);
             if (existingJob.isPresent() && "DONE".equals(existingJob.get().getStatus())) {
                 logger.info("Job {} is already completed, sending final status immediately", jobId);
 
-                // Send initial status
                 send(
                         emitter,
                         "status",
@@ -89,12 +105,10 @@ public class CitationController {
                                 "step", existingJob.get().getCurrentStep(),
                                 "progressPct", existingJob.get().getProgressPercent()));
 
-                // Send summary if available
                 if (existingJob.get().getSummary() != null) {
                     send(emitter, "summary", Map.of("summary", existingJob.get().getSummary()));
                 }
 
-                // Send completion event and close immediately
                 send(
                         emitter,
                         "complete",
@@ -107,7 +121,6 @@ public class CitationController {
                 return emitter;
             }
 
-            // Send immediate initial status event for active jobs
             send(
                     emitter,
                     "status",
@@ -116,7 +129,6 @@ public class CitationController {
                             "step", "Initializing citation check...",
                             "progressPct", 0));
 
-            // Setup keep-alive to prevent proxy timeouts
             final Runnable keepAlive = () -> {
                 try {
                     emitter.send(SseEmitter.event().comment("keep-alive"));
@@ -157,7 +169,6 @@ public class CitationController {
 
                 @Override
                 public void onComplete(UUID jobId) {
-                    // Send final completion event before closing connection
                     send(
                             emitter,
                             "complete",
@@ -193,7 +204,10 @@ public class CitationController {
     }
 
     /**
-     * Cancel a running citation check
+     * Cancels an active citation check job.
+     *
+     * @param jobId The UUID of the citation check job to cancel
+     * @return ResponseEntity with no content on success
      */
     @DeleteMapping("/jobs/{jobId}")
     public ResponseEntity<Void> cancelCitationCheck(@PathVariable UUID jobId) {
@@ -207,7 +221,11 @@ public class CitationController {
     }
 
     /**
-     * Get latest citation check for document (Frontend expects /documents/{documentId})
+     * Retrieves the latest citation check for a specific document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing the latest citation check results, or 404
+     *         if not found
      */
     @GetMapping("/documents/{documentId}")
     public ResponseEntity<CitationCheckResponseDto> getLatestCitationCheck(@PathVariable UUID documentId) {
@@ -222,7 +240,11 @@ public class CitationController {
     }
 
     /**
-     * Get all citation checks for a project
+     * Retrieves all citation checks associated with a specific project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of citation check results for the
+     *         project
      */
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<CitationCheckResponseDto>> getCitationChecksByProject(@PathVariable UUID projectId) {
@@ -236,13 +258,17 @@ public class CitationController {
     }
 
     /**
-     * Update citation issue (Frontend expects PUT /issues/{issueId})
+     * Updates a citation issue, typically to mark it as resolved or unresolved.
+     *
+     * @param issueId The UUID of the citation issue to update
+     * @param patch   The patch object containing fields to update (e.g.,
+     *                "resolved")
+     * @return ResponseEntity with no content on success
      */
     @PutMapping("/issues/{issueId}")
     public ResponseEntity<Void> updateCitationIssue(
             @PathVariable UUID issueId, @RequestBody Map<String, Object> patch) {
         try {
-            // Handle the UpdateCitationIssueRequest format from frontend
             if (patch.containsKey("resolved")) {
                 boolean resolved = (Boolean) patch.get("resolved");
                 citationCheckService.markIssueResolved(issueId, resolved);
@@ -255,7 +281,9 @@ public class CitationController {
     }
 
     /**
-     * Health check endpoint
+     * Health check endpoint for the citation service.
+     *
+     * @return ResponseEntity with service health status message
      */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
@@ -263,7 +291,11 @@ public class CitationController {
     }
 
     /**
-     * Helper method to send SSE events safely with proper message format
+     * Sends a Server-Sent Event (SSE) message through the emitter.
+     *
+     * @param emitter The SseEmitter to send the event through
+     * @param type    The type of event being sent
+     * @param data    The data payload for the event
      */
     private void send(SseEmitter emitter, String type, Object data) {
         try {
@@ -276,7 +308,10 @@ public class CitationController {
     }
 
     /**
-     * Legacy helper method for backwards compatibility
+     * Sends a generic Server-Sent Event (SSE) message through the emitter.
+     *
+     * @param emitter The SseEmitter to send the event through
+     * @param data    The data payload for the event
      */
     private void sendEvent(SseEmitter emitter, Object data) {
         try {

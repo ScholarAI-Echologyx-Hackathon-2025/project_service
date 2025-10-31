@@ -20,6 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for academic paper web search functionality.
+ * Provides endpoints for searching papers across multiple sources (Semantic Scholar,
+ * arXiv, Crossref, PubMed) and retrieving search results.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/websearch")
@@ -29,6 +34,13 @@ public class WebSearchController {
 
     private final WebSearchService webSearchService;
 
+    /**
+     * Initiates a search for academic papers across multiple sources.
+     * Returns a correlation ID that can be used to retrieve results asynchronously.
+     *
+     * @param request The search request containing query terms, domain, and batch size
+     * @return ResponseEntity containing search response with correlation ID
+     */
     @PostMapping
     @Operation(
             summary = "🔍 Search Academic Papers",
@@ -75,6 +87,13 @@ public class WebSearchController {
         }
     }
 
+    /**
+     * Retrieves search results using a correlation ID from an initiated search.
+     * Returns full paper metadata if available, or indicates if search is still in progress.
+     *
+     * @param correlationId The correlation ID from the initial search request
+     * @return ResponseEntity containing search results with paper metadata
+     */
     @GetMapping("/{correlationId}")
     @Operation(
             summary = "📄 Get Search Results",
@@ -121,6 +140,12 @@ public class WebSearchController {
         }
     }
 
+    /**
+     * Retrieves all web search results with full paper metadata.
+     * Useful for viewing search history and their current status.
+     *
+     * @return ResponseEntity containing a list of all search results
+     */
     @GetMapping
     @Operation(
             summary = "📚 Get All Search Results",
@@ -152,6 +177,11 @@ public class WebSearchController {
         }
     }
 
+    /**
+     * Health check endpoint for the web search service.
+     *
+     * @return ResponseEntity containing service health status
+     */
     @GetMapping("/health")
     @Operation(summary = "🔧 Health Check", description = "Check if the web search service is running and operational")
     @ApiResponse(

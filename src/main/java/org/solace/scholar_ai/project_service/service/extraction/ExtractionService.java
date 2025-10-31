@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing paper extraction operations
+ * Service for managing paper extraction operations.
+ * Handles triggering extraction jobs, processing completed extractions,
+ * and retrieving extraction status and results.
  */
 @Slf4j
 @Service
@@ -37,10 +39,12 @@ public class ExtractionService {
     private final ExtractionPersistenceService extractionPersistenceService;
 
     /**
-     * Trigger extraction for a paper
+     * Triggers an extraction job for a paper's PDF content.
+     * Validates the paper exists and has a PDF URL, then sends extraction request to the extractor service.
      *
-     * @param request The extraction request
-     * @return ExtractionResponse with job details
+     * @param request The extraction request containing paper ID and extraction options
+     * @return ExtractionResponse with job ID and status
+     * @throws CustomException if paper not found, no PDF URL, or extraction request fails
      */
     @Transactional
     public ExtractionResponse triggerExtraction(ExtractionRequest request) {
@@ -143,10 +147,10 @@ public class ExtractionService {
     }
 
     /**
-     * Get extraction status for a paper
+     * Retrieves the current extraction status for a paper.
      *
-     * @param paperId The paper ID
-     * @return ExtractionResponse with current status
+     * @param paperId The UUID of the paper
+     * @return ExtractionResponse with current status, timestamps, and error information
      */
     @Transactional(readOnly = true)
     public ExtractionResponse getExtractionStatus(String paperId) {

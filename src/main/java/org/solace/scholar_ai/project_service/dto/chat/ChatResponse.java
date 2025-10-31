@@ -14,12 +14,11 @@ import lombok.NoArgsConstructor;
 public class ChatResponse {
     private String sessionId;
     private String response;
-    private String timestamp; // Changed to String for consistency with frontend
+    private String timestamp;
     private boolean success;
     private String error;
     private ChatContext context;
 
-    // Legacy fields for backward compatibility
     private String message;
     private Map<String, Object> data;
     private String commandType;

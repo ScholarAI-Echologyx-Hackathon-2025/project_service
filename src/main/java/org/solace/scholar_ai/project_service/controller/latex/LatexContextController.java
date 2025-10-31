@@ -19,6 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing LaTeX context papers in projects.
+ * Provides endpoints to retrieve papers marked as LaTeX context and toggle
+ * their context status for automatic loading in the LaTeX editor.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/latex")
@@ -28,6 +33,14 @@ public class LatexContextController {
 
     private final PaperPersistenceService paperPersistenceService;
 
+    /**
+     * Retrieves all papers that are marked as LaTeX context for a specific project.
+     * These papers will be automatically loaded in the LaTeX editor for the
+     * project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of LaTeX context papers
+     */
     @GetMapping("/projects/{projectId}/context-papers")
     @Operation(
             summary = "📑 Get LaTeX Context Papers",
@@ -66,6 +79,15 @@ public class LatexContextController {
         }
     }
 
+    /**
+     * Toggles whether a paper is included in LaTeX context for its project.
+     * Papers marked as LaTeX context will be automatically loaded in the LaTeX
+     * editor.
+     *
+     * @param paperId The UUID of the paper
+     * @param request The toggle request containing the desired context status
+     * @return ResponseEntity containing the updated paper metadata
+     */
     @PutMapping("/papers/{paperId}/context")
     @Operation(
             summary = "🔄 Toggle LaTeX Context Status",
@@ -110,7 +132,7 @@ public class LatexContextController {
     }
 
     /**
-     * Request DTO for toggling LaTeX context status
+     * Request DTO for toggling LaTeX context status of a paper.
      */
     @Schema(description = "Request to toggle LaTeX context status for a paper")
     public record ToggleLatexContextRequest(

@@ -9,13 +9,32 @@ import org.solace.scholar_ai.project_service.dto.readinglist.ReadingListItemDto;
 import org.solace.scholar_ai.project_service.dto.readinglist.UpdateReadingListItemDto;
 import org.solace.scholar_ai.project_service.model.readinglist.ReadingListItem;
 
+/**
+ * MapStruct mapper interface for converting between ReadingListItem entity and DTOs.
+ * Handles complex enum conversions and default value assignments for reading list items.
+ */
 @Mapper(componentModel = "spring")
 public interface ReadingListItemMapper {
 
+    /** Singleton instance of the mapper. */
     ReadingListItemMapper INSTANCE = Mappers.getMapper(ReadingListItemMapper.class);
 
+    /**
+     * Converts a ReadingListItem entity to a ReadingListItemDto.
+     *
+     * @param entity The ReadingListItem entity to convert
+     * @return The corresponding ReadingListItemDto
+     */
     ReadingListItemDto toDto(ReadingListItem entity);
 
+    /**
+     * Converts an AddReadingListItemDto to a ReadingListItem entity for new item creation.
+     * Sets default values for enums, timestamps, and boolean fields.
+     *
+     * @param dto       The AddReadingListItemDto containing reading list item data
+     * @param projectId The UUID of the project this item belongs to
+     * @return A new ReadingListItem entity ready for persistence
+     */
     @Mapping(target = "id", ignore = true) // ID will be generated
     @Mapping(target = "projectId", source = "projectId")
     @Mapping(target = "paperId", source = "dto.paperId")
@@ -51,6 +70,15 @@ public interface ReadingListItemMapper {
     @Mapping(target = "paper", ignore = true) // Not mapped
     ReadingListItem fromAddDto(AddReadingListItemDto dto, UUID projectId);
 
+    /**
+     * Converts an UpdateReadingListItemDto to a ReadingListItem entity for updates.
+     * Preserves existing values for fields that are not provided in the DTO
+     * and ignores system-managed fields.
+     *
+     * @param dto    The UpdateReadingListItemDto containing updated data
+     * @param entity The existing ReadingListItem entity to update
+     * @return An updated ReadingListItem entity
+     */
     @Mapping(target = "id", source = "entity.id") // Preserve existing ID
     @Mapping(target = "projectId", source = "entity.projectId") // Preserve existing project ID
     @Mapping(target = "paperId", source = "entity.paperId") // Preserve existing paper ID

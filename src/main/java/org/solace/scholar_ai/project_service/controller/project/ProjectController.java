@@ -15,6 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing research projects.
+ * Provides endpoints for project CRUD operations, status management,
+ * starring, statistics, and updating project metrics.
+ */
 @Slf4j
 @RestController
 @RequestMapping("api/v1/projects")
@@ -24,7 +29,10 @@ public class ProjectController {
     private final ProjectService projectService;
 
     /**
-     * Create a new project
+     * Creates a new research project.
+     *
+     * @param createProjectDto The project creation data
+     * @return ResponseEntity containing the created project
      */
     @PostMapping
     public ResponseEntity<APIResponse<ProjectDto>> createProject(
@@ -51,7 +59,11 @@ public class ProjectController {
     }
 
     /**
-     * Get project by ID
+     * Retrieves a project by its ID.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user
+     * @return ResponseEntity containing the project
      */
     @GetMapping("/{projectId}")
     public ResponseEntity<APIResponse<ProjectDto>> getProjectById(
@@ -76,7 +88,10 @@ public class ProjectController {
     }
 
     /**
-     * Get all projects for a user
+     * Retrieves all projects for a user.
+     *
+     * @param userId The UUID of the user
+     * @return ResponseEntity containing a list of projects
      */
     @GetMapping
     public ResponseEntity<APIResponse<List<ProjectDto>>> getAllProjects(@RequestParam UUID userId) {
@@ -100,7 +115,11 @@ public class ProjectController {
     }
 
     /**
-     * Get projects by status
+     * Retrieves all projects for a user filtered by status.
+     *
+     * @param status The project status (ACTIVE, PAUSED, COMPLETED, ARCHIVED)
+     * @param userId The UUID of the user
+     * @return ResponseEntity containing a list of projects with the specified status
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<APIResponse<List<ProjectDto>>> getProjectsByStatus(
@@ -130,7 +149,10 @@ public class ProjectController {
     }
 
     /**
-     * Get starred projects
+     * Retrieves all starred projects for a user.
+     *
+     * @param userId The UUID of the user
+     * @return ResponseEntity containing a list of starred projects
      */
     @GetMapping("/starred")
     public ResponseEntity<APIResponse<List<ProjectDto>>> getStarredProjects(@RequestParam UUID userId) {
@@ -154,7 +176,11 @@ public class ProjectController {
     }
 
     /**
-     * Update an existing project
+     * Updates an existing project.
+     *
+     * @param projectId        The UUID of the project
+     * @param updateProjectDto The project update data
+     * @return ResponseEntity containing the updated project
      */
     @PutMapping("/{projectId}")
     public ResponseEntity<APIResponse<ProjectDto>> updateProject(
@@ -180,7 +206,11 @@ public class ProjectController {
     }
 
     /**
-     * Delete a project
+     * Deletes a project.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user
+     * @return ResponseEntity confirming deletion
      */
     @DeleteMapping("/{projectId}")
     public ResponseEntity<APIResponse<String>> deleteProject(@PathVariable UUID projectId, @RequestParam UUID userId) {
@@ -203,7 +233,11 @@ public class ProjectController {
     }
 
     /**
-     * Toggle project starred status
+     * Toggles the starred status of a project.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user
+     * @return ResponseEntity containing the updated project
      */
     @PostMapping("/{projectId}/toggle-star")
     public ResponseEntity<APIResponse<ProjectDto>> toggleProjectStar(
@@ -228,7 +262,10 @@ public class ProjectController {
     }
 
     /**
-     * Get project statistics for a user
+     * Retrieves project statistics for a user including counts by status.
+     *
+     * @param userId The UUID of the user
+     * @return ResponseEntity containing project statistics
      */
     @GetMapping("/stats")
     public ResponseEntity<APIResponse<Object>> getProjectStats(@RequestParam UUID userId) {
@@ -263,7 +300,11 @@ public class ProjectController {
     }
 
     /**
-     * Update project paper count
+     * Updates the total paper count for a project.
+     *
+     * @param projectId   The UUID of the project
+     * @param totalPapers The new total number of papers
+     * @return ResponseEntity confirming the update
      */
     @PutMapping("/{projectId}/paper-count")
     public ResponseEntity<APIResponse<String>> updateProjectPaperCount(
@@ -288,7 +329,11 @@ public class ProjectController {
     }
 
     /**
-     * Update project active tasks count
+     * Updates the active tasks count for a project.
+     *
+     * @param projectId  The UUID of the project
+     * @param activeTasks The new active tasks count
+     * @return ResponseEntity confirming the update
      */
     @PutMapping("/{projectId}/active-tasks")
     public ResponseEntity<APIResponse<String>> updateProjectActiveTasksCount(

@@ -19,7 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Consumer for receiving gap analysis responses from the gap analyzer service.
+ * RabbitMQ consumer for receiving gap analysis responses from the gap analyzer
+ * service.
+ * Processes gap analysis results, saves research gaps to the database,
+ * and sends notifications to users upon completion.
  */
 @Slf4j
 @Component
@@ -34,7 +37,12 @@ public class GapAnalysisResponseConsumer {
     private final UserNotificationClient notificationClient;
 
     /**
-     * Process gap analysis response from the gap analyzer service.
+     * Processes gap analysis response messages from the gap analyzer service.
+     * Updates gap analysis status, saves research gaps, and sends user
+     * notifications.
+     *
+     * @param response The gap analysis message response containing gaps, status,
+     *                 and metadata
      */
     @RabbitListener(queues = "${scholarai.rabbitmq.gap-analysis.response-queue:gap_analysis_responses}")
     @Transactional
@@ -48,8 +56,8 @@ public class GapAnalysisResponseConsumer {
             // Find the gap analysis record
             GapAnalysis gapAnalysis = gapAnalysisRepository
                     .findByRequestId(response.getRequestId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Gap analysis not found for requestId: " + response.getRequestId()));
+                    .orElseThrow(() -> new RuntimeException(
+                            "Gap analysis not found for requestId: " + response.getRequestId()));
 
             // Update gap analysis status
             if ("SUCCESS".equals(response.getStatus())) {
@@ -86,8 +94,6 @@ public class GapAnalysisResponseConsumer {
             // Send notification on success (best-effort)
             try {
                 if (gapAnalysis.getStatus() == GapAnalysis.GapStatus.COMPLETED) {
-                    // Get user ID through Paper -> correlationId -> WebSearchOperation -> Project
-                    // -> userId
                     String paperCorrelationId = gapAnalysis.getPaper().getCorrelationId();
                     java.util.UUID userId = null;
 
@@ -115,9 +121,7 @@ public class GapAnalysisResponseConsumer {
                                         response.getGaps() != null
                                                 ? response.getGaps().stream()
                                                         .map(
-                                                                org.solace.scholar_ai.project_service.dto.messaging.gap
-                                                                                .GapAnalysisMessageResponse.GapData
-                                                                        ::getName)
+                                                                org.solace.scholar_ai.project_service.dto.messaging.gap.GapAnalysisMessageResponse.GapData::getName)
                                                         .toList()
                                                 : java.util.List.of());
                                 data.put("appUrl", "https://scholarai.me");
@@ -151,12 +155,16 @@ public class GapAnalysisResponseConsumer {
 
         } catch (Exception e) {
             log.error("Failed to process gap analysis response for requestId: {}", response.getRequestId(), e);
-            // TODO: Consider implementing dead letter queue or retry mechanism
         }
     }
 
     /**
-     * Save research gaps from the response.
+     * Saves research gaps from the gap analysis response to the database.
+     * Creates ResearchGap entities with all extracted gap information including
+     * validation status, confidence scores, and research hints.
+     *
+     * @param gapAnalysis The GapAnalysis entity to associate gaps with
+     * @param gapDataList The list of gap data from the analysis response
      */
     private void saveResearchGaps(GapAnalysis gapAnalysis, List<GapAnalysisMessageResponse.GapData> gapDataList) {
         for (int i = 0; i < gapDataList.size(); i++) {
@@ -188,7 +196,13 @@ public class GapAnalysisResponseConsumer {
     }
 
     /**
-     * Convert object to JSON string.
+     * Converts an object to a JSON string representation.
+     * Used for storing complex objects (like evidence anchors and suggested topics)
+     * as JSON strings in the database.
+     *
+     * @param obj The object to convert to JSON
+     * @return A JSON string representation of the object, or null if conversion
+     *         fails
      */
     private String convertToJson(Object obj) {
         if (obj == null) {

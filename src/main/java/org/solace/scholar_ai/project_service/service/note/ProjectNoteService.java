@@ -13,12 +13,18 @@ import org.solace.scholar_ai.project_service.repository.note.ProjectNoteReposito
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing project notes.
+ * Provides operations for note CRUD, tag management, favorites, and automatic
+ * extraction of paper mentions and image associations.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(transactionManager = "transactionManager")
 public class ProjectNoteService {
 
+    /** Error message constant for note not found. */
     private static final String NOTE_NOT_FOUND_MESSAGE = "Note not found";
 
     private final ProjectNoteRepository projectNoteRepository;
@@ -27,7 +33,11 @@ public class ProjectNoteService {
     private final PaperMentionService paperMentionService;
 
     /**
-     * Get all notes for a project
+     * Retrieves all notes for a project, ordered by most recently updated.
+     *
+     * @param projectId The UUID of the project
+     * @param userId     The UUID of the user (for access validation)
+     * @return A list of note DTOs
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public List<NoteDto> getNotesByProjectId(UUID projectId, UUID userId) {
@@ -38,7 +48,13 @@ public class ProjectNoteService {
     }
 
     /**
-     * Get a specific note by ID
+     * Retrieves a specific note by ID within a project.
+     *
+     * @param projectId The UUID of the project
+     * @param noteId    The UUID of the note
+     * @param userId    The UUID of the user (for access validation)
+     * @return The note DTO
+     * @throws RuntimeException if the note is not found
      */
     @Transactional(readOnly = true, transactionManager = "transactionManager")
     public NoteDto getNoteById(UUID projectId, UUID noteId, UUID userId) {
@@ -52,7 +68,13 @@ public class ProjectNoteService {
     }
 
     /**
-     * Create a new note
+     * Creates a new note in a project.
+     * Automatically associates orphaned images and extracts paper mentions from content.
+     *
+     * @param projectId     The UUID of the project
+     * @param createNoteDto The note creation data
+     * @param userId        The UUID of the user (for access validation)
+     * @return The created note DTO
      */
     public NoteDto createNote(UUID projectId, CreateNoteDto createNoteDto, UUID userId) {
         log.info("Creating new note for project: {} for user: {}", projectId, userId);
@@ -81,7 +103,15 @@ public class ProjectNoteService {
     }
 
     /**
-     * Update an existing note
+     * Updates an existing note.
+     * Re-extracts paper mentions if content was updated and associates any new orphaned images.
+     *
+     * @param projectId     The UUID of the project
+     * @param noteId        The UUID of the note
+     * @param updateNoteDto The note update data
+     * @param userId        The UUID of the user (for access validation)
+     * @return The updated note DTO
+     * @throws RuntimeException if the note is not found
      */
     public NoteDto updateNote(UUID projectId, UUID noteId, UpdateNoteDto updateNoteDto, UUID userId) {
         log.info("Updating note: {} for project: {} for user: {}", noteId, projectId, userId);
@@ -125,7 +155,13 @@ public class ProjectNoteService {
     }
 
     /**
-     * Delete a note
+     * Deletes a note from a project.
+     * Also deletes associated images and paper mentions.
+     *
+     * @param projectId The UUID of the project
+     * @param noteId    The UUID of the note to delete
+     * @param userId    The UUID of the user (for access validation)
+     * @throws RuntimeException if the note is not found
      */
     public void deleteNote(UUID projectId, UUID noteId, UUID userId) {
         log.info("Deleting note: {} for project: {} for user: {}", noteId, projectId, userId);

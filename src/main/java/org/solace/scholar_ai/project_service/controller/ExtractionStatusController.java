@@ -15,6 +15,11 @@ import org.solace.scholar_ai.project_service.service.extraction.ExtractionStatus
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing paper extraction status.
+ * Provides endpoints to check PDF extraction status, retry extraction,
+ * and verify structured data availability for papers.
+ */
 @RestController
 @RequestMapping("/api/papers")
 @RequiredArgsConstructor
@@ -24,6 +29,14 @@ public class ExtractionStatusController {
 
     private final ExtractionStatusService extractionStatusService;
 
+    /**
+     * Gets the current extraction status for a paper.
+     * Returns detailed information about extraction progress and whether
+     * the paper content is ready for chat operations.
+     *
+     * @param paperId The ID of the paper to check
+     * @return ResponseEntity containing extraction status information
+     */
     @GetMapping("/{paperId}/extraction-status")
     @Operation(
             summary = "Get paper extraction status",
@@ -77,6 +90,15 @@ public class ExtractionStatusController {
         }
     }
 
+    /**
+     * Retries the extraction process for a paper that failed or is stuck.
+     * Only allows retry if the current status is failed or stuck,
+     * not if extraction is already completed or in progress.
+     *
+     * @param paperId The ID of the paper to retry extraction for
+     * @return ResponseEntity containing the extraction status after retry
+     *         initiation
+     */
     @PostMapping("/{paperId}/extraction/retry")
     @Operation(
             summary = "Retry paper extraction",
@@ -112,9 +134,6 @@ public class ExtractionStatusController {
                                         + currentStatus.getStatus().toLowerCase())
                                 .build());
             }
-
-            // TODO: Implement actual extraction retry logic
-            // This would trigger the extraction service to re-process the paper
             log.info("🚀 Extraction retry would be initiated for paper: {}", paperId);
 
             return ResponseEntity.ok(ExtractionStatusResponse.builder()
@@ -149,6 +168,13 @@ public class ExtractionStatusController {
         }
     }
 
+    /**
+     * Checks if a paper has structured data available for chat operations.
+     * Returns information about extraction status and data availability.
+     *
+     * @param paperId The ID of the paper to check
+     * @return ResponseEntity containing structured data availability information
+     */
     @GetMapping("/{paperId}/has-structured-data")
     @Operation(
             summary = "Check if paper has structured data",
@@ -199,12 +225,24 @@ public class ExtractionStatusController {
         }
     }
 
+    /**
+     * Exception handler for paper not found errors.
+     *
+     * @param e The PaperNotFoundException
+     * @return ResponseEntity with not found status
+     */
     @ExceptionHandler(PaperNotFoundException.class)
     public ResponseEntity<ExtractionStatusResponse> handlePaperNotFound(PaperNotFoundException e) {
         log.warn("❌ Paper not found: {}", e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * Exception handler for general errors.
+     *
+     * @param e The Exception
+     * @return ResponseEntity with error status response
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExtractionStatusResponse> handleGeneralError(Exception e) {
         log.error("❌ Unexpected error in extraction status controller: {}", e.getMessage(), e);

@@ -27,8 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing chat sessions and conversation history
- * Provides GitHub Copilot-like chat experience with session persistence
+ * Service for managing chat sessions and conversation history with research papers.
+ * Provides GitHub Copilot-like chat experience with session persistence,
+ * automatic title generation, and conversation management.
  */
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,13 @@ public class ChatSessionService {
     private final ObjectMapper objectMapper;
 
     /**
-     * Create a new chat session with an initial message
-     * AI generates session title based on the first message
+     * Creates a new chat session with an initial message.
+     * AI automatically generates a meaningful session title based on the first message.
+     *
+     * @param paperId The UUID of the paper to chat about
+     * @param request The chat session creation request with initial message
+     * @return The created chat session response
+     * @throws PaperNotFoundException if the paper is not found
      */
     @Transactional
     public ChatSessionResponse createChatSession(UUID paperId, CreateChatSessionRequest request) {
@@ -102,7 +108,10 @@ public class ChatSessionService {
     }
 
     /**
-     * Get all chat sessions for a specific paper
+     * Retrieves all active chat sessions for a specific paper, ordered by most recent activity.
+     *
+     * @param paperId The UUID of the paper
+     * @return A list of chat session responses with last message previews
      */
     public List<ChatSessionResponse> getChatSessionsForPaper(UUID paperId) {
         log.debug("Retrieving chat sessions for paper: {}", paperId);
@@ -119,7 +128,12 @@ public class ChatSessionService {
     }
 
     /**
-     * Get complete chat history for a session
+     * Retrieves the complete conversation history for a chat session.
+     * Includes all messages, session metadata, and conversation statistics.
+     *
+     * @param sessionId The UUID of the chat session
+     * @return The complete chat session history response
+     * @throws ChatSessionNotFoundException if the session is not found
      */
     public ChatSessionHistoryResponse getChatSessionHistory(UUID sessionId) {
         log.debug("Retrieving chat history for session: {}", sessionId);
@@ -149,7 +163,13 @@ public class ChatSessionService {
     }
 
     /**
-     * Continue an existing chat session
+     * Continues a chat conversation in an existing session.
+     * Updates session activity timestamp and processes the message.
+     *
+     * @param sessionId The UUID of the chat session
+     * @param request   The chat request containing the message
+     * @return The AI's response to the message
+     * @throws ChatSessionNotFoundException if the session is not found
      */
     @Transactional
     public PaperChatResponse continueChat(UUID sessionId, PaperChatRequest request) {
@@ -172,7 +192,10 @@ public class ChatSessionService {
     }
 
     /**
-     * Archive/delete a chat session
+     * Archives (soft deletes) a chat session by marking it as inactive.
+     *
+     * @param sessionId The UUID of the chat session to archive
+     * @throws ChatSessionNotFoundException if the session is not found
      */
     @Transactional
     public void archiveChatSession(UUID sessionId) {
@@ -187,7 +210,12 @@ public class ChatSessionService {
     }
 
     /**
-     * Update chat session title
+     * Updates the title of an existing chat session.
+     *
+     * @param sessionId The UUID of the chat session
+     * @param newTitle  The new title for the session
+     * @return The updated chat session response
+     * @throws ChatSessionNotFoundException if the session is not found
      */
     @Transactional
     public ChatSessionResponse updateSessionTitle(UUID sessionId, String newTitle) {
@@ -205,7 +233,11 @@ public class ChatSessionService {
     }
 
     /**
-     * Generate meaningful session title using AI
+     * Generates a meaningful session title using AI based on the initial conversation.
+     *
+     * @param initialMessage The user's initial message
+     * @param aiResponse     The AI's response
+     * @return A generated title (max 50 characters), or "Research Discussion" if generation fails
      */
     private String generateSessionTitle(String initialMessage, String aiResponse) {
         try {

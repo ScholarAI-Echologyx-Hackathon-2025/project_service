@@ -12,6 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Client for sending user notifications through the user service.
+ * This component handles communication with the user service notification API
+ * to send various types of notifications to users.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -22,6 +27,13 @@ public class UserNotificationClient {
     @Value("${scholarai.spring.user-service-url}")
     private String userServiceBaseUrl;
 
+    /**
+     * Sends a notification to a user through the user service.
+     *
+     * @param userId           The UUID of the user to send the notification to
+     * @param notificationType The type of notification to send
+     * @param templateData     The data to populate the notification template
+     */
     public void send(UUID userId, String notificationType, Map<String, Object> templateData) {
         try {
             String url = userServiceBaseUrl + "/api/v1/notifications/send";

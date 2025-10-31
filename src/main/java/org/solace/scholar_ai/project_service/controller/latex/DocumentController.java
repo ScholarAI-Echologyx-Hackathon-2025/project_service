@@ -19,6 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing LaTeX documents.
+ * Provides endpoints for document CRUD operations, LaTeX compilation,
+ * PDF generation, version management, and document search functionality.
+ */
 @RestController
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
@@ -29,6 +34,12 @@ public class DocumentController {
     private final LaTeXCompilationService latexCompilationService;
     private final PDFLatexService pdfLatexService;
 
+    /**
+     * Creates a new LaTeX document.
+     *
+     * @param request The document creation request
+     * @return ResponseEntity containing the created document
+     */
     @PostMapping
     public ResponseEntity<APIResponse<DocumentResponseDTO>> createDocument(
             @Valid @RequestBody CreateDocumentRequestDTO request) {
@@ -41,6 +52,12 @@ public class DocumentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Retrieves all documents for a specific project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of documents
+     */
     @GetMapping("/project/{projectId}")
     public ResponseEntity<APIResponse<List<DocumentResponseDTO>>> getDocumentsByProjectId(
             @PathVariable UUID projectId) {
@@ -53,6 +70,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieves a document by its ID.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing the document
+     */
     @GetMapping("/{documentId}")
     public ResponseEntity<APIResponse<DocumentResponseDTO>> getDocumentById(@PathVariable UUID documentId) {
         DocumentResponseDTO document = documentService.getDocumentById(documentId);
@@ -64,6 +87,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Updates an existing document.
+     *
+     * @param request The document update request
+     * @return ResponseEntity containing the updated document
+     */
     @PutMapping
     public ResponseEntity<APIResponse<DocumentResponseDTO>> updateDocument(
             @Valid @RequestBody UpdateDocumentRequestDTO request) {
@@ -76,6 +105,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Deletes a document by its ID.
+     *
+     * @param documentId The UUID of the document to delete
+     * @return ResponseEntity confirming deletion
+     */
     @DeleteMapping("/{documentId}")
     public ResponseEntity<APIResponse<Void>> deleteDocument(@PathVariable UUID documentId) {
         documentService.deleteDocument(documentId);
@@ -86,6 +121,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Compiles the LaTeX content of a document.
+     *
+     * @param documentId The UUID of the document to compile
+     * @return ResponseEntity containing the compiled content
+     */
     @PostMapping("/{documentId}/compile")
     public ResponseEntity<APIResponse<String>> compileDocument(@PathVariable UUID documentId) {
         DocumentResponseDTO document = documentService.getDocumentById(documentId);
@@ -98,6 +139,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Compiles LaTeX content provided in the request.
+     *
+     * @param request The compilation request containing LaTeX content
+     * @return ResponseEntity containing the compiled content
+     */
     @PostMapping("/compile")
     public ResponseEntity<APIResponse<String>> compileLatex(@Valid @RequestBody CompileLatexRequestDTO request) {
         String compiledContent = documentService.compileLatex(request.getLatexContent());
@@ -109,6 +156,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Compiles LaTeX content to PDF and returns it as a downloadable resource.
+     *
+     * @param request The compilation request containing LaTeX content
+     * @return ResponseEntity containing the PDF resource for download
+     */
     @PostMapping("/compile-pdf")
     public ResponseEntity<Resource> compileToPdf(@Valid @RequestBody CompileLatexRequestDTO request) {
         try {
@@ -125,6 +178,12 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Compiles LaTeX content to PDF and returns it for inline preview.
+     *
+     * @param request The compilation request containing LaTeX content
+     * @return ResponseEntity containing the PDF resource for inline display
+     */
     @PostMapping("/preview-pdf")
     public ResponseEntity<Resource> previewPdf(@Valid @RequestBody CompileLatexRequestDTO request) {
         try {
@@ -141,6 +200,12 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Generates a PDF from LaTeX content with a custom filename.
+     *
+     * @param request Map containing "latexContent" and optional "filename"
+     * @return ResponseEntity containing the generated PDF resource
+     */
     @PostMapping("/generate-pdf")
     public ResponseEntity<Resource> generatePDF(@RequestBody java.util.Map<String, String> request) {
         String latexContent = request.get("latexContent");
@@ -157,6 +222,13 @@ public class DocumentController {
         return latexCompilationService.generatePDF(latexContent, filename);
     }
 
+    /**
+     * Creates a document with a specified name in a project.
+     *
+     * @param projectId The UUID of the project
+     * @param fileName  The name for the new document
+     * @return ResponseEntity containing the created document
+     */
     @PostMapping("/create-with-name")
     public ResponseEntity<APIResponse<DocumentResponseDTO>> createDocumentWithName(
             @RequestParam UUID projectId, @RequestParam String fileName) {
@@ -177,6 +249,13 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Auto-saves document content without creating a new version.
+     *
+     * @param documentId The UUID of the document
+     * @param content    The updated document content
+     * @return ResponseEntity containing the auto-saved document
+     */
     @PostMapping("/{documentId}/auto-save")
     public ResponseEntity<APIResponse<DocumentResponseDTO>> autoSaveDocument(
             @PathVariable UUID documentId, @RequestBody String content) {
@@ -197,6 +276,12 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Updates the last accessed timestamp for a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity confirming the update
+     */
     @PostMapping("/{documentId}/access")
     public ResponseEntity<APIResponse<String>> updateLastAccessed(@PathVariable UUID documentId) {
         try {
@@ -215,6 +300,13 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Searches for documents within a project by query string.
+     *
+     * @param projectId The UUID of the project
+     * @param query     The search query string
+     * @return ResponseEntity containing a list of matching documents
+     */
     @GetMapping("/search")
     public ResponseEntity<APIResponse<List<DocumentResponseDTO>>> searchDocuments(
             @RequestParam UUID projectId, @RequestParam String query) {
@@ -235,6 +327,12 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Gets the count of documents in a project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing the document count
+     */
     @GetMapping("/count")
     public ResponseEntity<APIResponse<Long>> getDocumentCount(@RequestParam UUID projectId) {
         try {
@@ -254,7 +352,12 @@ public class DocumentController {
         }
     }
 
-    // Version control endpoints
+    /**
+     * Retrieves the version history for a document.
+     *
+     * @param documentId The UUID of the document
+     * @return ResponseEntity containing a list of document versions
+     */
     @GetMapping("/{documentId}/versions")
     public ResponseEntity<APIResponse<List<DocumentVersionDTO>>> getVersionHistory(@PathVariable UUID documentId) {
         try {
@@ -274,6 +377,14 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Creates a manual version snapshot of a document.
+     *
+     * @param documentId    The UUID of the document
+     * @param commitMessage The commit message for this version
+     * @param content       The document content to snapshot
+     * @return ResponseEntity containing the created version
+     */
     @PostMapping("/{documentId}/versions")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> createVersion(
             @PathVariable UUID documentId, @RequestParam String commitMessage, @RequestParam String content) {
@@ -294,6 +405,13 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Retrieves a specific version of a document by version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The version number to retrieve
+     * @return ResponseEntity containing the document version
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {
@@ -314,6 +432,13 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Retrieves the previous version relative to the specified version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The reference version number
+     * @return ResponseEntity containing the previous version
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}/previous")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getPreviousVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {
@@ -334,6 +459,13 @@ public class DocumentController {
         }
     }
 
+    /**
+     * Retrieves the next version relative to the specified version number.
+     *
+     * @param documentId    The UUID of the document
+     * @param versionNumber The reference version number
+     * @return ResponseEntity containing the next version
+     */
     @GetMapping("/{documentId}/versions/{versionNumber}/next")
     public ResponseEntity<APIResponse<DocumentVersionDTO>> getNextVersion(
             @PathVariable UUID documentId, @PathVariable Integer versionNumber) {

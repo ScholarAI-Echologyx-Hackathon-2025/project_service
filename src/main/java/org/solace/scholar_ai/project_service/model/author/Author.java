@@ -12,7 +12,11 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.solace.scholar_ai.project_service.model.paper.PaperAuthor;
 
-/** Entity mapping for author table. */
+/**
+ * Entity representing an academic author with information from multiple sources.
+ * Stores author metadata including affiliations, external IDs (Semantic Scholar, ORCID, etc.),
+ * research metrics, publications, and synchronization status with various academic databases.
+ */
 @Getter
 @Setter
 @Entity
