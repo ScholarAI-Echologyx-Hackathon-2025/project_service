@@ -21,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for gap analysis operations.
+ * REST controller for managing research gap analysis.
+ * Provides endpoints to initiate gap analysis for papers, retrieve analysis
+ * results,
+ * and manage gap analysis status and statistics.
  */
 @Slf4j
 @RestController
@@ -33,17 +36,20 @@ public class GapAnalysisController {
     private final GapAnalysisService gapAnalysisService;
 
     /**
-     * Initiate gap analysis for a paper.
+     * Initiates a gap analysis for a paper. The paper must be extracted before
+     * gap analysis can be performed.
+     *
+     * @param request The gap analysis request containing paper ID and configuration
+     * @return ResponseEntity containing the initiated gap analysis response
      */
     @PostMapping
     @Operation(summary = "Initiate gap analysis", description = "Start gap analysis for a paper")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "201", description = "Gap analysis initiated successfully"),
-                @ApiResponse(responseCode = "400", description = "Invalid request"),
-                @ApiResponse(responseCode = "404", description = "Paper not found"),
-                @ApiResponse(responseCode = "409", description = "Paper not extracted")
-            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Gap analysis initiated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "404", description = "Paper not found"),
+            @ApiResponse(responseCode = "409", description = "Paper not extracted")
+    })
     public ResponseEntity<GapAnalysisResponse> initiateGapAnalysis(@RequestBody GapAnalysisRequest request) {
 
         log.info("Received gap analysis request for paper: {}", request.getPaperId());
@@ -54,15 +60,17 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analysis by ID.
+     * Retrieves a gap analysis by its ID.
+     *
+     * @param id The UUID of the gap analysis
+     * @return ResponseEntity containing the gap analysis
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get gap analysis", description = "Retrieve gap analysis by ID")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Gap analysis found"),
-                @ApiResponse(responseCode = "404", description = "Gap analysis not found")
-            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Gap analysis found"),
+            @ApiResponse(responseCode = "404", description = "Gap analysis not found")
+    })
     public ResponseEntity<GapAnalysisResponse> getGapAnalysis(
             @Parameter(description = "Gap analysis ID") @PathVariable UUID id) {
 
@@ -71,11 +79,14 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by paper ID.
+     * Retrieves all gap analyses associated with a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of gap analyses
      */
     @GetMapping("/paper/{paperId}")
     @Operation(summary = "Get gap analyses by paper", description = "Retrieve all gap analyses for a paper")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Gap analyses found")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Gap analyses found") })
     public ResponseEntity<List<GapAnalysisResponse>> getGapAnalysesByPaperId(
             @Parameter(description = "Paper ID") @PathVariable UUID paperId) {
 
@@ -84,13 +95,15 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by paper ID with pagination.
+     * Retrieves gap analyses for a paper with pagination support.
+     *
+     * @param paperId  The UUID of the paper
+     * @param pageable Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of gap analyses
      */
     @GetMapping("/paper/{paperId}/paginated")
-    @Operation(
-            summary = "Get gap analyses by paper (paginated)",
-            description = "Retrieve gap analyses for a paper with pagination")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Gap analyses found")})
+    @Operation(summary = "Get gap analyses by paper (paginated)", description = "Retrieve gap analyses for a paper with pagination")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Gap analyses found") })
     public ResponseEntity<Page<GapAnalysisResponse>> getGapAnalysesByPaperIdPaginated(
             @Parameter(description = "Paper ID") @PathVariable UUID paperId,
             @PageableDefault(size = 10) Pageable pageable) {
@@ -100,11 +113,15 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by status.
+     * Retrieves gap analyses filtered by status.
+     *
+     * @param status The gap analysis status to filter by
+     * @return ResponseEntity containing a list of gap analyses with the specified
+     *         status
      */
     @GetMapping("/status/{status}")
     @Operation(summary = "Get gap analyses by status", description = "Retrieve gap analyses by status")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Gap analyses found")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Gap analyses found") })
     public ResponseEntity<List<GapAnalysisResponse>> getGapAnalysesByStatus(
             @Parameter(description = "Gap analysis status") @PathVariable GapAnalysis.GapStatus status) {
 
@@ -113,13 +130,16 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analyses by status with pagination.
+     * Retrieves gap analyses filtered by status with pagination support.
+     *
+     * @param status   The gap analysis status to filter by
+     * @param pageable Pagination parameters (default page size: 10)
+     * @return ResponseEntity containing a paginated list of gap analyses with the
+     *         specified status
      */
     @GetMapping("/status/{status}/paginated")
-    @Operation(
-            summary = "Get gap analyses by status (paginated)",
-            description = "Retrieve gap analyses by status with pagination")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Gap analyses found")})
+    @Operation(summary = "Get gap analyses by status (paginated)", description = "Retrieve gap analyses by status with pagination")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Gap analyses found") })
     public ResponseEntity<Page<GapAnalysisResponse>> getGapAnalysesByStatusPaginated(
             @Parameter(description = "Gap analysis status") @PathVariable GapAnalysis.GapStatus status,
             @PageableDefault(size = 10) Pageable pageable) {
@@ -129,15 +149,17 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get the latest gap analysis for a paper.
+     * Retrieves the most recent gap analysis for a specific paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing the latest gap analysis
      */
     @GetMapping("/paper/{paperId}/latest")
     @Operation(summary = "Get latest gap analysis", description = "Retrieve the most recent gap analysis for a paper")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Latest gap analysis found"),
-                @ApiResponse(responseCode = "404", description = "No gap analysis found for paper")
-            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Latest gap analysis found"),
+            @ApiResponse(responseCode = "404", description = "No gap analysis found for paper")
+    })
     public ResponseEntity<GapAnalysisResponse> getLatestGapAnalysisByPaperId(
             @Parameter(description = "Paper ID") @PathVariable UUID paperId) {
 
@@ -146,16 +168,18 @@ public class GapAnalysisController {
     }
 
     /**
-     * Retry failed gap analysis.
+     * Retries a failed gap analysis by its ID.
+     *
+     * @param id The UUID of the gap analysis to retry
+     * @return ResponseEntity containing the retried gap analysis response
      */
     @PostMapping("/{id}/retry")
     @Operation(summary = "Retry gap analysis", description = "Retry a failed gap analysis")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Gap analysis retry initiated"),
-                @ApiResponse(responseCode = "400", description = "Invalid operation"),
-                @ApiResponse(responseCode = "404", description = "Gap analysis not found")
-            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Gap analysis retry initiated"),
+            @ApiResponse(responseCode = "400", description = "Invalid operation"),
+            @ApiResponse(responseCode = "404", description = "Gap analysis not found")
+    })
     public ResponseEntity<GapAnalysisResponse> retryGapAnalysis(
             @Parameter(description = "Gap analysis ID") @PathVariable UUID id) {
 
@@ -166,31 +190,34 @@ public class GapAnalysisController {
     }
 
     /**
-     * Get gap analysis request data by paper ID.
+     * Retrieves gap analysis request data and configuration for all analyses of a
+     * paper.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of gap analysis request data
      */
     @GetMapping("/paper/{paperId}/request-data")
-    @Operation(
-            summary = "Get gap analysis request data by paper",
-            description = "Retrieve gap analysis request data and configuration for a paper")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Gap analysis request data found"),
-                @ApiResponse(responseCode = "404", description = "No gap analysis found for paper")
-            })
+    @Operation(summary = "Get gap analysis request data by paper", description = "Retrieve gap analysis request data and configuration for a paper")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Gap analysis request data found"),
+            @ApiResponse(responseCode = "404", description = "No gap analysis found for paper")
+    })
     public ResponseEntity<List<GapAnalysisService.GapAnalysisRequestData>> getGapAnalysisRequestDataByPaperId(
             @Parameter(description = "Paper ID") @PathVariable UUID paperId) {
 
-        List<GapAnalysisService.GapAnalysisRequestData> requestData =
-                gapAnalysisService.getGapAnalysisRequestDataByPaperId(paperId);
+        List<GapAnalysisService.GapAnalysisRequestData> requestData = gapAnalysisService
+                .getGapAnalysisRequestDataByPaperId(paperId);
         return ResponseEntity.ok(requestData);
     }
 
     /**
-     * Get gap analysis statistics.
+     * Retrieves overall gap analysis statistics across all analyses.
+     *
+     * @return ResponseEntity containing gap analysis statistics
      */
     @GetMapping("/stats")
     @Operation(summary = "Get gap analysis statistics", description = "Retrieve gap analysis statistics")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Statistics retrieved")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Statistics retrieved") })
     public ResponseEntity<GapAnalysisService.GapAnalysisStats> getGapAnalysisStats() {
         GapAnalysisService.GapAnalysisStats stats = gapAnalysisService.getGapAnalysisStats();
         return ResponseEntity.ok(stats);
