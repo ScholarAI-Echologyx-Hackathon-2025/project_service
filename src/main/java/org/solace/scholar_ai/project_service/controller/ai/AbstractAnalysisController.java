@@ -19,6 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for AI-powered analysis of research paper abstracts.
+ * Provides endpoints for analyzing abstracts to extract highlights, insights,
+ * and perform comprehensive analysis of research paper abstracts.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +33,13 @@ public class AbstractAnalysisController {
 
     private final AbstractAnalysisService abstractAnalysisService;
 
+    /**
+     * Analyzes a research paper abstract and identifies important keywords, numbers, and concepts
+     * that should be highlighted for emphasis.
+     *
+     * @param request The abstract analysis request containing the abstract text
+     * @return ResponseEntity containing the analyzed highlights
+     */
     @PostMapping("/highlights")
     @Operation(
             summary = "🔍 Analyze Abstract Highlights",
@@ -63,6 +75,13 @@ public class AbstractAnalysisController {
         }
     }
 
+    /**
+     * Analyzes a research paper abstract and extracts key insights including focus, approach,
+     * emphasis, and other relevant information.
+     *
+     * @param request The abstract analysis request containing the abstract text
+     * @return ResponseEntity containing the analyzed insights
+     */
     @PostMapping("/insights")
     @Operation(
             summary = "🧠 Analyze Abstract Insights",
@@ -97,6 +116,13 @@ public class AbstractAnalysisController {
         }
     }
 
+    /**
+     * Performs a complete analysis of a research paper abstract, including both highlights
+     * and insights in a single request.
+     *
+     * @param request The abstract analysis request containing the abstract text
+     * @return ResponseEntity containing the complete analysis with both highlights and insights
+     */
     @PostMapping("/analyze")
     @Operation(
             summary = "📊 Complete Abstract Analysis",
@@ -137,6 +163,14 @@ public class AbstractAnalysisController {
         }
     }
 
+    /**
+     * Gets or creates analysis for a specific paper's abstract.
+     * Returns cached results if available, otherwise performs new analysis.
+     *
+     * @param paperId The ID of the paper to analyze
+     * @param request The abstract analysis request containing the abstract text
+     * @return ResponseEntity containing the complete analysis for the paper
+     */
     @PostMapping("/paper/{paperId}/analyze")
     @Operation(
             summary = "📊 Analyze Paper Abstract",
@@ -174,6 +208,13 @@ public class AbstractAnalysisController {
         }
     }
 
+    /**
+     * Forces re-analysis of a paper's abstract, updating the database with new results.
+     *
+     * @param paperId The ID of the paper to re-analyze
+     * @param request The abstract analysis request containing the abstract text
+     * @return ResponseEntity containing the re-analyzed results
+     */
     @PostMapping("/paper/{paperId}/reanalyze")
     @Operation(
             summary = "🔄 Re-analyze Paper Abstract",
@@ -210,19 +251,38 @@ public class AbstractAnalysisController {
         }
     }
 
+    /**
+     * Response DTO containing both highlights and insights from abstract analysis.
+     */
     public static class CompleteAnalysisResponse {
         private final AbstractHighlightDto highlights;
         private final AbstractAnalysisDto insights;
 
+        /**
+         * Creates a complete analysis response with highlights and insights.
+         *
+         * @param highlights The highlighted elements from the abstract
+         * @param insights The insights extracted from the abstract
+         */
         public CompleteAnalysisResponse(AbstractHighlightDto highlights, AbstractAnalysisDto insights) {
             this.highlights = highlights;
             this.insights = insights;
         }
 
+        /**
+         * Gets the highlights from the abstract analysis.
+         *
+         * @return The abstract highlights
+         */
         public AbstractHighlightDto getHighlights() {
             return highlights;
         }
 
+        /**
+         * Gets the insights from the abstract analysis.
+         *
+         * @return The abstract insights
+         */
         public AbstractAnalysisDto getInsights() {
             return insights;
         }

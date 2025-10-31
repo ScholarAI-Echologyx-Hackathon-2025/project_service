@@ -17,6 +17,11 @@ import org.solace.scholar_ai.project_service.service.author.AuthorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing author information with multi-source synchronization.
+ * Provides endpoints to fetch, sync, and resync author data from various academic sources
+ * including Semantic Scholar, OpenAlex, ORCID, DBLP, and Crossref.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +31,16 @@ public class AuthorController {
 
     private final AuthorService authorService;
 
+    /**
+     * Fetches author information from the database. If data is incomplete or missing,
+     * automatically triggers sync with paper-search service to get comprehensive data.
+     * This endpoint intelligently decides whether to return cached data or fetch fresh data.
+     *
+     * @param name The name of the author to fetch
+     * @param strategy The search strategy to use if sync is needed (default: "fast")
+     * @param userId Optional user ID for tracking purposes
+     * @return ResponseEntity containing the author information
+     */
     @GetMapping("/fetch/{name}")
     @Operation(
             summary = "📋 Fetch Author Information",
@@ -63,6 +78,15 @@ public class AuthorController {
         }
     }
 
+    /**
+     * Forces synchronization of author information from paper-search service.
+     * This endpoint always fetches fresh data from multiple academic APIs (Semantic Scholar,
+     * OpenAlex, ORCID, DBLP, Crossref) and updates the database. Use this when you need
+     * the most up-to-date information.
+     *
+     * @param request The author sync request containing name, strategy, and user ID
+     * @return ResponseEntity containing the synchronized author information
+     */
     @PostMapping("/sync")
     @Operation(
             summary = "🔄 Sync Author from External Sources",
@@ -101,6 +125,16 @@ public class AuthorController {
         }
     }
 
+    /**
+     * Forces resynchronization of author information from paper-search service.
+     * This endpoint always fetches fresh data from external sources and updates the database.
+     * Use this when you want to refresh cached author data.
+     *
+     * @param name The name of the author to resync
+     * @param strategy The search strategy to use (default: "comprehensive")
+     * @param userId Optional user ID for tracking purposes
+     * @return ResponseEntity containing the resynchronized author information
+     */
     @PostMapping("/resync/{name}")
     @Operation(
             summary = "🔄 Resync Author Data",
