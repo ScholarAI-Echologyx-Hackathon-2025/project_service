@@ -86,8 +86,6 @@ public class GapAnalysisResponseConsumer {
             // Send notification on success (best-effort)
             try {
                 if (gapAnalysis.getStatus() == GapAnalysis.GapStatus.COMPLETED) {
-                    // Get user ID through Paper -> correlationId -> WebSearchOperation -> Project
-                    // -> userId
                     String paperCorrelationId = gapAnalysis.getPaper().getCorrelationId();
                     java.util.UUID userId = null;
 
@@ -151,7 +149,6 @@ public class GapAnalysisResponseConsumer {
 
         } catch (Exception e) {
             log.error("Failed to process gap analysis response for requestId: {}", response.getRequestId(), e);
-            // TODO: Consider implementing dead letter queue or retry mechanism
         }
     }
 
