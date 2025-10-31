@@ -25,6 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Service for managing author information with multi-source synchronization.
+ * Fetches author data from various academic sources (Semantic Scholar, OpenAlex, ORCID, etc.)
+ * and caches it for efficient retrieval.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,14 +41,21 @@ public class AuthorService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    /** Base URL for the paper search service API. */
     @Value("${scholarai.fastapi.papersearch-url}")
     private String paperSearchBaseUrl;
 
+    /** Cache expiry time in hours for author data. */
     private static final int CACHE_EXPIRY_HOURS = 24;
 
     /**
-     * Fetch author information - smart method that returns cached data or syncs if
-     * needed
+     * Fetches author information using a smart caching strategy.
+     * Returns cached data if available and fresh, otherwise triggers sync with external sources.
+     *
+     * @param name     The name of the author to fetch
+     * @param strategy The search strategy to use if sync is needed (e.g., "fast", "comprehensive")
+     * @param userId   Optional user ID for tracking purposes
+     * @return The author DTO containing author information
      */
     @Transactional
     public AuthorDto fetchAuthor(String name, String strategy, String userId) {
@@ -69,7 +81,12 @@ public class AuthorService {
     }
 
     /**
-     * Check if author data is sufficient and fresh enough
+     * Checks if author data is sufficient and fresh enough to use without re-syncing.
+     * Data is considered sufficient if it has a Semantic Scholar ID and citation count,
+     * and fresh if it was synced within the cache expiry period.
+     *
+     * @param author The author entity to check
+     * @return true if data is sufficient and fresh, false otherwise
      */
     private boolean isDataSufficientAndFresh(Author author) {
         // Check if synced recently
@@ -87,7 +104,11 @@ public class AuthorService {
     }
 
     /**
-     * Fetch author information by ID from database
+     * Retrieves author information by ID from the database.
+     *
+     * @param authorId The UUID of the author
+     * @return The author DTO
+     * @throws CustomException if author not found
      */
     @Transactional(readOnly = true)
     public AuthorDto getAuthorById(UUID authorId) {

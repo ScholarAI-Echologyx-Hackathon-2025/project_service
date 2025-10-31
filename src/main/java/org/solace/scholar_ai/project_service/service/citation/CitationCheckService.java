@@ -29,13 +29,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing citation checking operations.
+ * Validates citations in documents, identifies issues, and provides real-time
+ * progress updates through Server-Sent Events (SSE) listeners.
+ */
 @Service
 @Transactional
 public class CitationCheckService {
 
     private static final Logger logger = LoggerFactory.getLogger(CitationCheckService.class);
 
-    // Listener interface for SSE streaming
+    /**
+     * Listener interface for receiving real-time citation check progress updates via SSE.
+     */
     public interface CitationJobListener {
         void onStatus(UUID jobId, String status, String step, int progressPct);
 
@@ -48,7 +55,7 @@ public class CitationCheckService {
         void onComplete(UUID jobId);
     }
 
-    // Map to store job listeners for SSE streaming
+    /** Map to store job listeners for SSE streaming. */
     private final Map<UUID, CitationJobListener> jobListeners = new ConcurrentHashMap<>();
 
     @Autowired
@@ -67,7 +74,10 @@ public class CitationCheckService {
     private PaperPersistenceService paperPersistenceService;
 
     /**
-     * Register a job listener for SSE streaming
+     * Registers a job listener for receiving SSE updates during citation checking.
+     *
+     * @param jobId    The UUID of the citation check job
+     * @param listener The listener to register
      */
     public void registerJobListener(UUID jobId, CitationJobListener listener) {
         jobListeners.put(jobId, listener);
@@ -75,7 +85,9 @@ public class CitationCheckService {
     }
 
     /**
-     * Unregister a job listener
+     * Unregisters a job listener for a citation check job.
+     *
+     * @param jobId The UUID of the citation check job
      */
     public void unregisterJobListener(UUID jobId) {
         jobListeners.remove(jobId);

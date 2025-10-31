@@ -32,8 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for generating comprehensive paper summaries using extracted data and
- * Gemini AI
+ * Service for generating comprehensive paper summaries using extracted data and Gemini AI.
+ * Processes paper content in parallel, generates structured summaries with key insights,
+ * and sends notifications upon completion.
  */
 @Slf4j
 @Service
@@ -49,10 +50,17 @@ public class PaperSummaryGenerationService {
     private final WebSearchOperationRepository webSearchOperationRepository;
     private final ProjectRepository projectRepository;
 
+    /** Thread pool for parallel summary generation tasks. */
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     /**
-     * Generate a comprehensive summary for a paper
+     * Generates a comprehensive summary for a paper using extracted content.
+     * Validates that the paper has been extracted, processes content in parallel,
+     * and generates structured summaries with metrics and insights.
+     *
+     * @param paperId The UUID of the paper to summarize
+     * @return The generated PaperSummary entity
+     * @throws PaperNotExtractedException if the paper has not been extracted yet
      */
     @Transactional
     public PaperSummary generateSummary(UUID paperId) {

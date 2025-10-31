@@ -21,6 +21,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service implementation for managing todo items.
+ * Handles CRUD operations, filtering, and summary statistics for todos,
+ * including management of subtasks and reminders.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,6 +35,13 @@ public class TodoServiceImpl implements TodoService {
     private final TodoSubtaskRepository subtaskRepository;
     private final TodoMapper todoMapper;
 
+    /**
+     * Creates a new todo item with validation and optional subtasks/reminders.
+     *
+     * @param request The todo creation request
+     * @return The created todo response DTO
+     * @throws Exception if validation fails or creation errors occur
+     */
     @Override
     public TodoResponseDTO createTodo(TodoCreateReqDTO request) throws Exception {
         try {
@@ -153,6 +165,14 @@ public class TodoServiceImpl implements TodoService {
         return todoMapper.todosToTodoResponses(todos);
     }
 
+    /**
+     * Helper method to compare enum values ignoring case and underscores.
+     * Used for flexible enum matching in summary calculations.
+     *
+     * @param actual   The actual enum value string
+     * @param expected The expected enum value string
+     * @return true if the values match (ignoring case and underscores)
+     */
     private static boolean enumEquals(String actual, String expected) {
         if (actual == null || expected == null) return false;
         return actual.replace("_", "").equalsIgnoreCase(expected.replace("_", ""));

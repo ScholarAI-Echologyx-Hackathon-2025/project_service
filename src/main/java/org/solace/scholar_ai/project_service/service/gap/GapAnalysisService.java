@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for managing gap analysis operations.
+ * Initiates gap analysis jobs, tracks their status, and retrieves analysis results
+ * for research papers.
  */
 @Slf4j
 @Service
@@ -40,7 +42,13 @@ public class GapAnalysisService {
     private final ObjectMapper objectMapper;
 
     /**
-     * Initiate gap analysis for a paper.
+     * Initiates a gap analysis for a paper.
+     * Validates that the paper has been extracted, creates a gap analysis record,
+     * and sends the analysis request to the gap analyzer service.
+     *
+     * @param request The gap analysis request containing paper ID and configuration
+     * @return GapAnalysisResponse with analysis details and status
+     * @throws CustomException if paper not found, not extracted, or request fails
      */
     @Transactional
     public GapAnalysisResponse initiateGapAnalysis(GapAnalysisRequest request) {
@@ -121,7 +129,11 @@ public class GapAnalysisService {
     }
 
     /**
-     * Get gap analysis by ID.
+     * Retrieves a gap analysis by its ID.
+     *
+     * @param gapAnalysisId The UUID of the gap analysis
+     * @return GapAnalysisResponse with analysis details
+     * @throws CustomException if gap analysis not found
      */
     @Transactional(readOnly = true)
     public GapAnalysisResponse getGapAnalysis(UUID gapAnalysisId) {
@@ -136,7 +148,10 @@ public class GapAnalysisService {
     }
 
     /**
-     * Get gap analyses by paper ID.
+     * Retrieves all gap analyses for a paper, ordered by creation date (newest first).
+     *
+     * @param paperId The UUID of the paper
+     * @return A list of gap analysis responses
      */
     @Transactional(readOnly = true)
     public List<GapAnalysisResponse> getGapAnalysesByPaperId(UUID paperId) {
@@ -145,7 +160,11 @@ public class GapAnalysisService {
     }
 
     /**
-     * Get gap analyses by paper ID with pagination.
+     * Retrieves gap analyses for a paper with pagination support.
+     *
+     * @param paperId The UUID of the paper
+     * @param pageable Pagination parameters
+     * @return A paginated page of gap analysis responses
      */
     @Transactional(readOnly = true)
     public Page<GapAnalysisResponse> getGapAnalysesByPaperId(UUID paperId, Pageable pageable) {

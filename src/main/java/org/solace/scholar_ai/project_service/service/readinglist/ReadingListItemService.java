@@ -18,6 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for managing reading list items within projects.
+ * Provides operations for adding, updating, deleting, and querying reading list items
+ * with filtering, pagination, and statistics.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +34,13 @@ public class ReadingListItemService {
     private final ReadingListItemMapper readingListItemMapper;
 
     /**
-     * Get all reading list items for a project with filtering and pagination
+     * Retrieves all reading list items for a project with filtering and pagination.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user (for access validation)
+     * @param filters   Map of filter criteria (status, priority, difficulty, etc.)
+     * @param pageable  Pagination parameters
+     * @return A paginated page of reading list item DTOs
      */
     public Page<ReadingListItemDto> getReadingListItems(
             UUID projectId, UUID userId, Map<String, String> filters, Pageable pageable) {
@@ -62,7 +73,13 @@ public class ReadingListItemService {
     }
 
     /**
-     * Add a new paper to the reading list
+     * Adds a new paper to the reading list for a project.
+     *
+     * @param projectId The UUID of the project
+     * @param userId    The UUID of the user (for access validation)
+     * @param dto       The reading list item data
+     * @return The created reading list item DTO
+     * @throws RuntimeException if the paper already exists in the reading list
      */
     public ReadingListItemDto addReadingListItem(UUID projectId, UUID userId, AddReadingListItemDto dto) {
         validateProjectAccess(projectId, userId);
@@ -80,7 +97,14 @@ public class ReadingListItemService {
     }
 
     /**
-     * Update a reading list item
+     * Updates an existing reading list item.
+     *
+     * @param projectId The UUID of the project
+     * @param itemId    The UUID of the reading list item
+     * @param userId    The UUID of the user (for access validation)
+     * @param dto       The updated reading list item data
+     * @return The updated reading list item DTO
+     * @throws RuntimeException if the reading list item is not found
      */
     public ReadingListItemDto updateReadingListItem(
             UUID projectId, UUID itemId, UUID userId, UpdateReadingListItemDto dto) {

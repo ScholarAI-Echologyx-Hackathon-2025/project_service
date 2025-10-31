@@ -10,6 +10,11 @@ import org.solace.scholar_ai.project_service.constant.CommandType;
 import org.solace.scholar_ai.project_service.dto.chat.ParsedCommand;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for parsing natural language user commands into structured command objects.
+ * Uses Gemini AI to understand user intent and extract parameters from natural language input.
+ * Falls back to general question handling if command parsing fails.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -17,6 +22,14 @@ public class CommandParserService {
     private final GeminiGeneralService geminiGeneralService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Parses a natural language user input into a structured command.
+     * Uses AI to determine command type, extract parameters, and generate a natural response.
+     * Falls back to general question handling if parsing fails.
+     *
+     * @param userInput The natural language user input to parse
+     * @return A ParsedCommand object containing command type, parameters, and response
+     */
     public ParsedCommand parseCommand(String userInput) {
         log.info("🔍 Parsing command: {}", userInput);
 
@@ -75,6 +88,13 @@ public class CommandParserService {
         }
     }
 
+    /**
+     * Builds a prompt for the AI to parse user commands.
+     * Includes examples and command type definitions to guide the parsing.
+     *
+     * @param userInput The user input to include in the prompt
+     * @return A formatted prompt string for the AI
+     */
     private String buildParsingPrompt(String userInput) {
         return """
                 You are a command parser for a productivity assistant. Analyze the following user input and determine:
@@ -133,6 +153,13 @@ public class CommandParserService {
                 .formatted(userInput);
     }
 
+    /**
+     * Extracts JSON content from an AI response string.
+     * Handles cases where the response may contain markdown code blocks or extra text.
+     *
+     * @param response The AI response string that may contain JSON
+     * @return The extracted JSON string, or "{}" if no JSON found
+     */
     private String extractJsonFromResponse(String response) {
         // Extract JSON from response (handle markdown code blocks)
         int start = response.indexOf("{");
