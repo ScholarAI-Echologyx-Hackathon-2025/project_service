@@ -100,7 +100,6 @@ public class LibraryController {
         try {
             log.info("Upload paper to project {} endpoint hit", projectId);
 
-            // Extract userId from the request body - we'll add it to UploadedPaperRequest
             PaperMetadataDto savedPaper = uploadedPaperService.saveUploadedPaper(request, request.userId());
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -194,7 +193,7 @@ public class LibraryController {
                     library.completedSearchOperations(),
                     library.retrievedAt(),
                     library.message(),
-                    List.of()); // Empty papers list for stats endpoint
+                    List.of());
 
             String message = String.format(
                     "Project has %d papers from %d completed search operations",

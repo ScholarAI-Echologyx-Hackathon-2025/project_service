@@ -33,7 +33,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/latex/context/extraction")
 @RequiredArgsConstructor
-@Tag(name = "📝 LaTeX Context Extraction", description = "Batch trigger extraction for papers used in LaTeX editor context")
+@Tag(
+        name = "📝 LaTeX Context Extraction",
+        description = "Batch trigger extraction for papers used in LaTeX editor context")
 public class LatexExtractionController {
 
     private final ExtractionService extractionService;
@@ -50,11 +52,17 @@ public class LatexExtractionController {
      *         statistics
      */
     @PostMapping("/trigger")
-    @Operation(summary = "Trigger extraction for multiple papers", description = "Accepts a list of paper IDs, skips those already extracted or currently processing, "
-            + "and triggers extraction for the rest. Returns per-paper results without failing the batch.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Batch extraction processed", content = @Content(schema = @Schema(implementation = APIResponse.class)))
-    })
+    @Operation(
+            summary = "Trigger extraction for multiple papers",
+            description = "Accepts a list of paper IDs, skips those already extracted or currently processing, "
+                    + "and triggers extraction for the rest. Returns per-paper results without failing the batch.")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Batch extraction processed",
+                        content = @Content(schema = @Schema(implementation = APIResponse.class)))
+            })
     public ResponseEntity<APIResponse<BatchExtractionResponse>> triggerBatchExtraction(
             @Valid @RequestBody BatchExtractionRequest request) {
         List<BatchExtractionItemResult> results = new ArrayList<>();
@@ -106,8 +114,7 @@ public class LatexExtractionController {
     @Schema(description = "Batch extraction trigger request")
     public record BatchExtractionRequest(
             @NotEmpty(message = "paperIds cannot be empty") List<@NotNull UUID> paperIds,
-            @Schema(description = "Process asynchronously", example = "true") Boolean asyncProcessing) {
-    }
+            @Schema(description = "Process asynchronously", example = "true") Boolean asyncProcessing) {}
 
     /**
      * Result item for individual paper extraction in batch operation.
@@ -154,14 +161,10 @@ public class LatexExtractionController {
             int skippedInProgress = 0;
             int errors = 0;
             for (BatchExtractionItemResult i : items) {
-                if ("TRIGGERED".equals(i.action()))
-                    triggered++;
-                else if ("SKIPPED_ALREADY_EXTRACTED".equals(i.action()))
-                    skippedExtracted++;
-                else if ("SKIPPED_IN_PROGRESS".equals(i.action()))
-                    skippedInProgress++;
-                else if ("ERROR".equals(i.action()))
-                    errors++;
+                if ("TRIGGERED".equals(i.action())) triggered++;
+                else if ("SKIPPED_ALREADY_EXTRACTED".equals(i.action())) skippedExtracted++;
+                else if ("SKIPPED_IN_PROGRESS".equals(i.action())) skippedInProgress++;
+                else if ("ERROR".equals(i.action())) errors++;
             }
             return new BatchExtractionResponse(
                     items.size(), triggered, skippedExtracted, skippedInProgress, errors, items);

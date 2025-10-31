@@ -26,6 +26,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for AI-powered contextual chat with research papers.
+ * Provides endpoints for chatting with papers, managing chat sessions,
+ * and retrieving conversation history.
+ */
 @RestController
 @RequestMapping("/api/papers")
 @RequiredArgsConstructor
@@ -37,32 +42,28 @@ public class PaperContextChatController {
     private final EnhancedPaperContextChatService paperContextChatService;
     private final ChatSessionService chatSessionService;
 
+    /**
+     * Chats with a paper using AI to answer questions about its content.
+     * Uses extracted paper content to provide contextual, accurate responses.
+     * Automatically creates or uses an existing chat session.
+     *
+     * @param paperId The UUID of the paper to chat with
+     * @param request The chat request containing the message and optional session
+     *                ID
+     * @return ResponseEntity containing the AI's response
+     */
     @PostMapping("/{paperId}/chat")
-    @Operation(
-            summary = "Chat with a paper using AI",
-            description =
-                    "Ask questions about a paper and get contextual AI-powered responses based on the paper's content. "
-                            + "The AI uses extracted paper content to provide accurate, context-aware answers.",
-            responses = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Chat response generated successfully",
-                        content = @Content(schema = @Schema(implementation = PaperChatResponse.class))),
-                @ApiResponse(
-                        responseCode = "400",
-                        description = "Invalid request - missing question or invalid parameters"),
-                @ApiResponse(responseCode = "404", description = "Paper not found"),
-                @ApiResponse(
-                        responseCode = "422",
-                        description = "Paper content not extracted yet - extraction in progress or failed"),
-                @ApiResponse(responseCode = "500", description = "Internal server error during chat processing")
+    @Operation(summary = "Chat with a paper using AI", description = "Ask questions about a paper and get contextual AI-powered responses based on the paper's content. "
+            + "The AI uses extracted paper content to provide accurate, context-aware answers.", responses = {
+                    @ApiResponse(responseCode = "200", description = "Chat response generated successfully", content = @Content(schema = @Schema(implementation = PaperChatResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid request - missing question or invalid parameters"),
+                    @ApiResponse(responseCode = "404", description = "Paper not found"),
+                    @ApiResponse(responseCode = "422", description = "Paper content not extracted yet - extraction in progress or failed"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error during chat processing")
             })
     public ResponseEntity<PaperChatResponse> chatWithPaper(
             @Parameter(description = "ID of the paper to chat about", required = true) @PathVariable UUID paperId,
-            @Parameter(description = "Chat request containing the question and optional session ID", required = true)
-                    @Valid
-                    @RequestBody
-                    PaperChatRequest request) {
+            @Parameter(description = "Chat request containing the question and optional session ID", required = true) @Valid @RequestBody PaperChatRequest request) {
 
         log.info("📝 Chat request for paper {}: {}", paperId, request.getMessage());
 
@@ -93,14 +94,18 @@ public class PaperContextChatController {
         }
     }
 
+    /**
+     * Retrieves the complete conversation history for a specific chat session.
+     *
+     * @param paperId   The UUID of the paper
+     * @param sessionId The UUID of the chat session
+     * @return ResponseEntity containing the chat session history
+     */
     @GetMapping("/{paperId}/chat/sessions/{sessionId}")
-    @Operation(
-            summary = "Get chat session history",
-            description = "Retrieve the complete conversation history for a specific chat session with a paper.",
-            responses = {
-                @ApiResponse(responseCode = "200", description = "Chat session history retrieved successfully"),
-                @ApiResponse(responseCode = "404", description = "Chat session not found")
-            })
+    @Operation(summary = "Get chat session history", description = "Retrieve the complete conversation history for a specific chat session with a paper.", responses = {
+            @ApiResponse(responseCode = "200", description = "Chat session history retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Chat session not found")
+    })
     public ResponseEntity<ChatSessionHistoryResponse> getChatSessionHistory(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId,
             @Parameter(description = "ID of the chat session", required = true) @PathVariable UUID sessionId) {
@@ -126,19 +131,21 @@ public class PaperContextChatController {
         }
     }
 
-    // ========== NEW SESSION MANAGEMENT ENDPOINTS ==========
-
+    /**
+     * Creates a new chat session for a paper.
+     * The AI generates a meaningful session title based on the initial message.
+     *
+     * @param paperId The UUID of the paper
+     * @param request The chat session creation request with initial message
+     * @return ResponseEntity containing the created chat session
+     */
     @PostMapping("/{paperId}/chat/sessions")
-    @Operation(
-            summary = "Create a new chat session",
-            description =
-                    "Start a new conversation with a paper. AI will generate a meaningful session title based on the initial message.",
-            responses = {
-                @ApiResponse(responseCode = "201", description = "Chat session created successfully"),
-                @ApiResponse(responseCode = "400", description = "Invalid request"),
-                @ApiResponse(responseCode = "404", description = "Paper not found"),
-                @ApiResponse(responseCode = "422", description = "Paper content not extracted yet")
-            })
+    @Operation(summary = "Create a new chat session", description = "Start a new conversation with a paper. AI will generate a meaningful session title based on the initial message.", responses = {
+            @ApiResponse(responseCode = "201", description = "Chat session created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "404", description = "Paper not found"),
+            @ApiResponse(responseCode = "422", description = "Paper content not extracted yet")
+    })
     public ResponseEntity<ChatSessionResponse> createChatSession(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId,
             @Valid @RequestBody CreateChatSessionRequest request) {
@@ -166,14 +173,17 @@ public class PaperContextChatController {
         }
     }
 
+    /**
+     * Retrieves all chat sessions for a paper, ordered by last activity.
+     *
+     * @param paperId The UUID of the paper
+     * @return ResponseEntity containing a list of chat sessions
+     */
     @GetMapping("/{paperId}/chat/sessions")
-    @Operation(
-            summary = "Get all chat sessions for a paper",
-            description = "Retrieve all chat sessions for a specific paper, ordered by last activity.",
-            responses = {
-                @ApiResponse(responseCode = "200", description = "Chat sessions retrieved successfully"),
-                @ApiResponse(responseCode = "404", description = "Paper not found")
-            })
+    @Operation(summary = "Get all chat sessions for a paper", description = "Retrieve all chat sessions for a specific paper, ordered by last activity.", responses = {
+            @ApiResponse(responseCode = "200", description = "Chat sessions retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Paper not found")
+    })
     public ResponseEntity<List<ChatSessionResponse>> getChatSessions(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId) {
 
@@ -189,15 +199,20 @@ public class PaperContextChatController {
         }
     }
 
+    /**
+     * Continues a chat conversation in an existing session.
+     *
+     * @param paperId   The UUID of the paper
+     * @param sessionId The UUID of the chat session
+     * @param request   The chat request containing the message
+     * @return ResponseEntity containing the AI's response
+     */
     @PostMapping("/{paperId}/chat/sessions/{sessionId}/messages")
-    @Operation(
-            summary = "Continue chat in existing session",
-            description = "Send a message to continue an existing chat session.",
-            responses = {
-                @ApiResponse(responseCode = "200", description = "Message processed successfully"),
-                @ApiResponse(responseCode = "404", description = "Chat session not found"),
-                @ApiResponse(responseCode = "422", description = "Paper content not extracted yet")
-            })
+    @Operation(summary = "Continue chat in existing session", description = "Send a message to continue an existing chat session.", responses = {
+            @ApiResponse(responseCode = "200", description = "Message processed successfully"),
+            @ApiResponse(responseCode = "404", description = "Chat session not found"),
+            @ApiResponse(responseCode = "422", description = "Paper content not extracted yet")
+    })
     public ResponseEntity<PaperChatResponse> continueChat(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId,
             @Parameter(description = "ID of the chat session", required = true) @PathVariable UUID sessionId,
@@ -233,14 +248,19 @@ public class PaperContextChatController {
         }
     }
 
+    /**
+     * Updates the title of an existing chat session.
+     *
+     * @param paperId   The UUID of the paper
+     * @param sessionId The UUID of the chat session
+     * @param newTitle  The new title for the session
+     * @return ResponseEntity containing the updated chat session
+     */
     @PutMapping("/{paperId}/chat/sessions/{sessionId}/title")
-    @Operation(
-            summary = "Update chat session title",
-            description = "Update the title of an existing chat session.",
-            responses = {
-                @ApiResponse(responseCode = "200", description = "Session title updated successfully"),
-                @ApiResponse(responseCode = "404", description = "Chat session not found")
-            })
+    @Operation(summary = "Update chat session title", description = "Update the title of an existing chat session.", responses = {
+            @ApiResponse(responseCode = "200", description = "Session title updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Chat session not found")
+    })
     public ResponseEntity<ChatSessionResponse> updateSessionTitle(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId,
             @Parameter(description = "ID of the chat session", required = true) @PathVariable UUID sessionId,
@@ -262,14 +282,18 @@ public class PaperContextChatController {
         }
     }
 
+    /**
+     * Archives (soft deletes) a chat session by marking it as inactive.
+     *
+     * @param paperId   The UUID of the paper
+     * @param sessionId The UUID of the chat session to archive
+     * @return ResponseEntity with no content if successful
+     */
     @DeleteMapping("/{paperId}/chat/sessions/{sessionId}")
-    @Operation(
-            summary = "Archive chat session",
-            description = "Archive/delete a chat session (soft delete - marks as inactive).",
-            responses = {
-                @ApiResponse(responseCode = "204", description = "Session archived successfully"),
-                @ApiResponse(responseCode = "404", description = "Chat session not found")
-            })
+    @Operation(summary = "Archive chat session", description = "Archive/delete a chat session (soft delete - marks as inactive).", responses = {
+            @ApiResponse(responseCode = "204", description = "Session archived successfully"),
+            @ApiResponse(responseCode = "404", description = "Chat session not found")
+    })
     public ResponseEntity<Void> archiveChatSession(
             @Parameter(description = "ID of the paper", required = true) @PathVariable UUID paperId,
             @Parameter(description = "ID of the chat session", required = true) @PathVariable UUID sessionId) {
@@ -291,7 +315,10 @@ public class PaperContextChatController {
     }
 
     /**
-     * Helper method to truncate messages for logging
+     * Helper method to truncate messages for logging purposes.
+     *
+     * @param message The message to truncate
+     * @return The truncated message (max 100 characters) or original if shorter
      */
     private String truncateMessage(String message) {
         return message != null && message.length() > 100 ? message.substring(0, 97) + "..." : message;

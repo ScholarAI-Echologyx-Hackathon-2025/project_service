@@ -14,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for managing paper information
+ * REST controller for managing paper information.
+ * Provides endpoints for retrieving structured facts and metadata about papers.
  */
 @Slf4j
 @RestController
@@ -25,15 +26,19 @@ public class PaperController {
 
     private final PaperService paperService;
 
-    @Operation(
-            summary = "Get structured facts for a paper",
-            description = "Retrieves structured facts including title, authors, and basic information for a paper")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Paper facts retrieved successfully"),
-                @ApiResponse(responseCode = "404", description = "Paper not found"),
-                @ApiResponse(responseCode = "500", description = "Internal server error")
-            })
+    /**
+     * Retrieves structured facts for a paper including title, authors, and basic
+     * information.
+     *
+     * @param paperId The ID of the paper
+     * @return ResponseEntity containing structured facts about the paper
+     */
+    @Operation(summary = "Get structured facts for a paper", description = "Retrieves structured facts including title, authors, and basic information for a paper")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Paper facts retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Paper not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{paperId}/structured-facts")
     public ResponseEntity<Map<String, Object>> getStructuredFacts(
             @Parameter(description = "Paper ID", required = true) @PathVariable String paperId) {

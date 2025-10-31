@@ -31,6 +31,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * REST controller for managing project notes.
+ * Provides endpoints for note CRUD operations, searching, image management,
+ * paper mention suggestions, and AI content generation.
+ */
 @Slf4j
 @RestController
 @RequestMapping("api/v1/projects/{projectId}/notes")
@@ -43,7 +48,10 @@ public class ProjectNoteController {
     private final AIContentService aiContentService;
 
     /**
-     * Get all notes for a project
+     * Retrieves all notes for a project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of notes
      */
     @GetMapping
     public ResponseEntity<APIResponse<List<NoteDto>>> getNotes(@PathVariable UUID projectId) {
@@ -66,7 +74,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Get a specific note by ID
+     * Retrieves a specific note by its ID.
+     *
+     * @param projectId The UUID of the project
+     * @param noteId    The UUID of the note
+     * @return ResponseEntity containing the note
      */
     @GetMapping("/{noteId}")
     public ResponseEntity<APIResponse<NoteDto>> getNote(@PathVariable UUID projectId, @PathVariable UUID noteId) {
@@ -88,7 +100,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Create a new note
+     * Creates a new note in a project.
+     *
+     * @param projectId     The UUID of the project
+     * @param createNoteDto The note creation data
+     * @return ResponseEntity containing the created note
      */
     @PostMapping
     public ResponseEntity<APIResponse<NoteDto>> createNote(
@@ -112,7 +128,12 @@ public class ProjectNoteController {
     }
 
     /**
-     * Update an existing note
+     * Updates an existing note.
+     *
+     * @param projectId     The UUID of the project
+     * @param noteId        The UUID of the note
+     * @param updateNoteDto The note update data
+     * @return ResponseEntity containing the updated note
      */
     @PutMapping("/{noteId}")
     public ResponseEntity<APIResponse<NoteDto>> updateNote(
@@ -136,7 +157,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Delete a note
+     * Deletes a note from a project.
+     *
+     * @param projectId The UUID of the project
+     * @param noteId    The UUID of the note to delete
+     * @return ResponseEntity confirming deletion
      */
     @DeleteMapping("/{noteId}")
     public ResponseEntity<APIResponse<String>> deleteNote(@PathVariable UUID projectId, @PathVariable UUID noteId) {
@@ -158,7 +183,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Toggle favorite status of a note
+     * Toggles the favorite status of a note.
+     *
+     * @param projectId The UUID of the project
+     * @param noteId    The UUID of the note
+     * @return ResponseEntity containing the updated note
      */
     @PutMapping("/{noteId}/favorite")
     public ResponseEntity<APIResponse<NoteDto>> toggleNoteFavorite(
@@ -187,7 +216,10 @@ public class ProjectNoteController {
     }
 
     /**
-     * Get favorite notes for a project
+     * Retrieves all favorite notes for a project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of favorite notes
      */
     @GetMapping("/favorites")
     public ResponseEntity<APIResponse<List<NoteDto>>> getFavoriteNotes(@PathVariable UUID projectId) {
@@ -211,7 +243,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Search notes by tag
+     * Searches notes by tag within a project.
+     *
+     * @param projectId The UUID of the project
+     * @param tag       The tag to search for
+     * @return ResponseEntity containing a list of notes matching the tag
      */
     @GetMapping("/search/tag")
     public ResponseEntity<APIResponse<List<NoteDto>>> searchNotesByTag(
@@ -235,7 +271,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Search notes by content
+     * Searches notes by content within a project.
+     *
+     * @param projectId The UUID of the project
+     * @param q         The search query string
+     * @return ResponseEntity containing a list of notes matching the content query
      */
     @GetMapping("/search/content")
     public ResponseEntity<APIResponse<List<NoteDto>>> searchNotesByContent(
@@ -260,7 +300,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Upload an image for notes
+     * Uploads an image for use in project notes.
+     *
+     * @param projectId The UUID of the project
+     * @param file      The image file to upload
+     * @return ResponseEntity containing image upload information
      */
     @PostMapping("/images")
     public ResponseEntity<APIResponse<ImageUploadDto>> uploadImage(
@@ -285,7 +329,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Get image by ID
+     * Retrieves an image by its ID.
+     *
+     * @param projectId The UUID of the project
+     * @param imageId   The UUID of the image
+     * @return ResponseEntity containing the image resource
      */
     @GetMapping("/images/{imageId}")
     public ResponseEntity<Resource> getImage(@PathVariable UUID projectId, @PathVariable UUID imageId) {
@@ -327,7 +375,10 @@ public class ProjectNoteController {
     }
 
     /**
-     * Get all images for a project
+     * Retrieves all images for a project.
+     *
+     * @param projectId The UUID of the project
+     * @return ResponseEntity containing a list of images
      */
     @GetMapping("/images")
     public ResponseEntity<APIResponse<List<ImageUploadDto>>> getImages(@PathVariable UUID projectId) {
@@ -351,7 +402,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Delete an image
+     * Deletes an image from a project.
+     *
+     * @param projectId The UUID of the project
+     * @param imageId   The UUID of the image to delete
+     * @return ResponseEntity confirming deletion
      */
     @DeleteMapping("/images/{imageId}")
     public ResponseEntity<APIResponse<String>> deleteImage(@PathVariable UUID projectId, @PathVariable UUID imageId) {
@@ -381,7 +436,12 @@ public class ProjectNoteController {
     }
 
     /**
-     * Search papers for @ mention suggestions
+     * Searches for papers that can be mentioned in notes.
+     * Used for suggesting papers when creating or editing notes.
+     *
+     * @param projectId The UUID of the project
+     * @param q         The search query string
+     * @return ResponseEntity containing a list of paper suggestions
      */
     @GetMapping("/papers/search")
     public ResponseEntity<APIResponse<List<PaperSuggestionDto>>> searchPapersForMention(
@@ -405,7 +465,11 @@ public class ProjectNoteController {
     }
 
     /**
-     * Generate AI content for notes
+     * Generates AI content for notes based on a prompt and context.
+     *
+     * @param projectId The UUID of the project
+     * @param request   The AI content generation request with prompt and context
+     * @return ResponseEntity containing the generated AI content
      */
     @PostMapping("/ai/generate")
     public ResponseEntity<APIResponse<AIContentResponseDto>> generateAIContent(
@@ -413,8 +477,8 @@ public class ProjectNoteController {
         try {
             log.info("Generate AI content for project {} with prompt: {}", projectId, request.prompt());
 
-            String generatedContent =
-                    aiContentService.generateNoteContent(request.prompt(), request.context(), projectId);
+            String generatedContent = aiContentService.generateNoteContent(request.prompt(), request.context(),
+                    projectId);
 
             AIContentResponseDto response = new AIContentResponseDto(generatedContent, "success", null);
 
@@ -427,8 +491,8 @@ public class ProjectNoteController {
                     .body(APIResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage(), errorResponse));
         } catch (Exception e) {
             log.error("Unexpected error generating AI content for project {}: {}", projectId, e.getMessage());
-            AIContentResponseDto errorResponse =
-                    new AIContentResponseDto(null, "error", "Failed to generate AI content");
+            AIContentResponseDto errorResponse = new AIContentResponseDto(null, "error",
+                    "Failed to generate AI content");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(APIResponse.error(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to generate AI content", errorResponse));
