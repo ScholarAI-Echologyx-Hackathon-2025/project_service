@@ -3,7 +3,7 @@
 # Project Service Local Development Script
 # This script provides commands to build, run, test, and manage the Spring Boot project service
 
-set -e  # Exit on any error
+set -e
 
 # Colors for output
 RED='\033[0;31m'
@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Configuration
 APP_NAME="project_service"
@@ -56,11 +56,9 @@ check_java() {
 
 # Function to check if Maven is installed
 check_maven() {
-    # First try to use mvn command
     if command -v mvn &> /dev/null; then
         MAVEN_CMD="mvn"
         print_success "Using system Maven: $(mvn -version | head -n 1)"
-    # Fallback to Maven wrapper if available
     elif test -f ./mvnw; then
         MAVEN_CMD="./mvnw"
         print_success "Using Maven wrapper: $($MAVEN_CMD -version | head -n 1)"
@@ -75,7 +73,6 @@ check_maven() {
 format() {
     print_status "Formatting code..."
     
-    # Check if spotless is available
     if $MAVEN_CMD help:evaluate -Dexpression=plugin.artifactId -q -DforceStdout | grep -q "spotless-maven-plugin"; then
         if ! $MAVEN_CMD spotless:check; then
             print_status "Applying code format..."
@@ -95,16 +92,12 @@ format() {
 build() {
     print_status "Building $APP_NAME..."
     
-    # Format code first
     format
     
-    # Clean and compile
     $MAVEN_CMD clean compile
     
-    # Run tests
     $MAVEN_CMD test
     
-    # Package the application
     $MAVEN_CMD package -DskipTests
     
     print_success "Build completed successfully!"
@@ -123,7 +116,6 @@ run() {
     
     print_status "Starting $APP_NAME on port $port..."
     
-    # Check if application is already running
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
         if ps -p "$pid" > /dev/null 2>&1; then
@@ -135,7 +127,6 @@ run() {
         fi
     fi
     
-    # Start the application
     nohup $MAVEN_CMD spring-boot:run -Dspring-boot.run.jvmArguments="-Dserver.port=$port" > "$LOG_FILE" 2>&1 &
     local pid=$!
     echo $pid > "$PID_FILE"
@@ -145,7 +136,6 @@ run() {
     print_status "API will be available at http://localhost:$port"
     print_status "Swagger UI will be available at http://localhost:$port/docs"
     
-    # Wait a moment and check if it started successfully
     sleep 5
     if ! ps -p "$pid" > /dev/null 2>&1; then
         print_error "Application failed to start. Check logs:"
@@ -249,10 +239,8 @@ show_help() {
 
 # Main script logic
 main() {
-    # Change to project root directory
     cd "$(dirname "$0")/.."
     
-    # Check prerequisites
     check_java
     check_maven
     
@@ -296,5 +284,4 @@ main() {
     esac
 }
 
-# Run main function with all arguments
 main "$@"

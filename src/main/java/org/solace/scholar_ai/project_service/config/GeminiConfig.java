@@ -4,6 +4,10 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration properties for the Gemini AI API integration.
+ * Loads API key and base URL from application properties with prefix "gemini".
+ */
 @Configuration
 @ConfigurationProperties(prefix = "gemini")
 @Data

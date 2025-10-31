@@ -12,11 +12,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+/**
+ * Configuration for Jackson ObjectMapper used for JSON serialization and deserialization.
+ * Configures custom date/time formatting and timezone settings.
+ */
 @Configuration
 public class JacksonConfig {
 
     private static final String DATETIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
 
+    /**
+     * Creates the primary ObjectMapper bean with custom date/time formatting.
+     * Configures LocalDateTime serialization/deserialization using a custom format
+     * and sets the timezone to UTC. Disables writing dates as timestamps.
+     *
+     * @return The configured ObjectMapper instance
+     */
     @Bean
     @Primary
     public ObjectMapper objectMapper() {

@@ -35,7 +35,6 @@ public class RabbitMQConfig {
     @Value("${scholarai.rabbitmq.web-search.completed-routing-key}")
     private String webSearchCompletedRoutingKey;
 
-    // Extraction queue properties
     @Value("${scholarai.rabbitmq.extraction.queue}")
     private String extractionQueue;
 
@@ -48,7 +47,6 @@ public class RabbitMQConfig {
     @Value("${scholarai.rabbitmq.extraction.completed-routing-key}")
     private String extractionCompletedRoutingKey;
 
-    // Gap analysis queue properties
     @Value("${scholarai.rabbitmq.gap-analysis.request-queue}")
     private String gapAnalysisRequestQueue;
 
@@ -280,7 +278,7 @@ public class RabbitMQConfig {
         factory.setMessageConverter(jsonMessageConverter());
         factory.setConcurrentConsumers(3);
         factory.setMaxConcurrentConsumers(10);
-        factory.setDefaultRequeueRejected(false); // send bad messages to DLQ
+        factory.setDefaultRequeueRejected(false);
         return factory;
     }
 }
