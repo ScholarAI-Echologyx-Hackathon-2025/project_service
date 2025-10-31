@@ -7,7 +7,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 /**
- * Service for sending extraction requests to the extractor service via RabbitMQ
+ * Service for sending extraction requests to the extractor service via RabbitMQ.
+ * Publishes extraction job requests for processing PDF content from research papers.
  */
 @Slf4j
 @Service
@@ -16,15 +17,23 @@ public class ExtractionRequestSender {
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMQConfig rabbitMQConfig;
 
+    /**
+     * Creates a new ExtractionRequestSender with the required dependencies.
+     *
+     * @param rabbitTemplate  The RabbitTemplate for sending messages
+     * @param rabbitMQConfig  The RabbitMQ configuration containing exchange and routing keys
+     */
     public ExtractionRequestSender(RabbitTemplate rabbitTemplate, RabbitMQConfig rabbitMQConfig) {
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitMQConfig = rabbitMQConfig;
     }
 
     /**
-     * Send extraction request to extractor service
+     * Sends an extraction request to the extractor service via RabbitMQ.
+     * Publishes the request to the configured exchange with the extraction routing key.
      *
-     * @param request The extraction request message
+     * @param request The extraction request message containing paper ID, job ID, and PDF URL
+     * @throws RuntimeException if the message cannot be sent
      */
     public void send(ExtractorMessageRequest request) {
         try {

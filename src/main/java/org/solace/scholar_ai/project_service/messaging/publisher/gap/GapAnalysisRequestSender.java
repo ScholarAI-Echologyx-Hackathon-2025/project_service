@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Publisher for sending gap analysis requests to RabbitMQ.
+ * Publishes gap analysis job requests to the gap analyzer service for processing.
  */
 @Slf4j
 @Component
@@ -21,14 +22,23 @@ public class GapAnalysisRequestSender {
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
 
+    /** RabbitMQ exchange name for gap analysis requests. */
     @Value("${scholarai.rabbitmq.exchange}")
     private String exchangeName;
 
+    /** RabbitMQ routing key for gap analysis requests. */
     @Value("${scholarai.rabbitmq.gap-analysis.request-routing-key:gap.analysis.request}")
     private String requestRoutingKey;
 
     /**
-     * Send gap analysis request to the gap analyzer service.
+     * Sends a gap analysis request to the gap analyzer service via RabbitMQ.
+     * Converts the request to a message format and publishes it to the configured exchange.
+     *
+     * @param request           The gap analysis request containing paper ID and configuration
+     * @param paperExtractionId The UUID of the paper extraction to analyze
+     * @param correlationId     The correlation ID for tracking the analysis request
+     * @param requestId         The unique request ID for this gap analysis
+     * @throws RuntimeException if the message cannot be sent
      */
     public void sendGapAnalysisRequest(
             GapAnalysisRequest request, UUID paperExtractionId, String correlationId, String requestId) {

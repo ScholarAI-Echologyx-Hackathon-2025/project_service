@@ -8,7 +8,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Listener for extraction completion events from the extractor service
+ * RabbitMQ listener for extraction completion events from the extractor service.
+ * Processes completed paper extraction jobs and updates extraction status
+ * and results in the database.
  */
 @Slf4j
 @Component
@@ -18,9 +20,11 @@ public class ExtractionCompletedListener {
     private final ExtractionService extractionService;
 
     /**
-     * Handle extraction completion events
+     * Handles extraction completion events from the extractor service.
+     * Processes the extracted content and updates the paper extraction status.
      *
-     * @param event The extraction completion event
+     * @param event The extraction completion event containing job ID, paper ID,
+     *              and extracted content
      */
     @RabbitListener(queues = "${scholarai.rabbitmq.extraction.completed-queue}")
     public void handleExtractionCompleted(ExtractionCompletedEvent event) {

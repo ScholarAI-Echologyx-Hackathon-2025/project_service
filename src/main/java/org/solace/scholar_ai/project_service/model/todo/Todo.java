@@ -9,6 +9,11 @@ import org.solace.scholar_ai.project_service.constant.todo.TodoCategory;
 import org.solace.scholar_ai.project_service.constant.todo.TodoPriority;
 import org.solace.scholar_ai.project_service.constant.todo.TodoStatus;
 
+/**
+ * Entity representing a todo item in the research project management system.
+ * Supports subtasks, reminders, tags, and relationships to projects and papers.
+ * Tracks status, priority, category, time estimates, and completion information.
+ */
 @Entity
 @Table(name = "todos", indexes = @Index(columnList = "userId"))
 @Getter
@@ -76,21 +81,41 @@ public class Todo {
     @Builder.Default
     private List<TodoReminder> reminders = new ArrayList<>();
 
+    /**
+     * Adds a subtask to this todo item.
+     *
+     * @param subtask The subtask to add
+     */
     public void addSubtask(TodoSubtask subtask) {
         subtasks.add(subtask);
         subtask.setTodo(this);
     }
 
+    /**
+     * Removes a subtask from this todo item.
+     *
+     * @param subtask The subtask to remove
+     */
     public void removeSubtask(TodoSubtask subtask) {
         subtasks.remove(subtask);
         subtask.setTodo(null);
     }
 
+    /**
+     * Adds a reminder to this todo item.
+     *
+     * @param reminder The reminder to add
+     */
     public void addReminder(TodoReminder reminder) {
         reminders.add(reminder);
         reminder.setTodo(this);
     }
 
+    /**
+     * Removes a reminder from this todo item.
+     *
+     * @param reminder The reminder to remove
+     */
     public void removeReminder(TodoReminder reminder) {
         reminders.remove(reminder);
         reminder.setTodo(null);
