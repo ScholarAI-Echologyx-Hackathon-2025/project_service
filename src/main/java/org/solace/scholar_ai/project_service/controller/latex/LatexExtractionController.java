@@ -22,65 +22,62 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for batch triggering extraction of papers used in LaTeX
+ * editor
+ * context.
+ * Provides endpoints to efficiently trigger extraction for multiple papers,
+ * skipping those already extracted or in progress.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/latex/context/extraction")
 @RequiredArgsConstructor
-@Tag(
-        name = "📝 LaTeX Context Extraction",
-        description = "Batch trigger extraction for papers used in LaTeX editor context")
+@Tag(name = "📝 LaTeX Context Extraction", description = "Batch trigger extraction for papers used in LaTeX editor context")
 public class LatexExtractionController {
 
     private final ExtractionService extractionService;
 
+    /**
+     * Triggers extraction for multiple papers in batch.
+     * Skips papers that are already extracted or currently processing,
+     * and triggers extraction for the rest. Returns per-paper results without
+     * failing the entire batch.
+     *
+     * @param request The batch extraction request containing paper IDs and async
+     *                processing flag
+     * @return ResponseEntity containing batch extraction results with summary
+     *         statistics
+     */
     @PostMapping("/trigger")
-    @Operation(
-            summary = "Trigger extraction for multiple papers",
-            description = "Accepts a list of paper IDs, skips those already extracted or currently processing, "
-                    + "and triggers extraction for the rest. Returns per-paper results without failing the batch.")
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Batch extraction processed",
-                        content = @Content(schema = @Schema(implementation = APIResponse.class)))
-            })
+    @Operation(summary = "Trigger extraction for multiple papers", description = "Accepts a list of paper IDs, skips those already extracted or currently processing, "
+            + "and triggers extraction for the rest. Returns per-paper results without failing the batch.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Batch extraction processed", content = @Content(schema = @Schema(implementation = APIResponse.class)))
+    })
     public ResponseEntity<APIResponse<BatchExtractionResponse>> triggerBatchExtraction(
             @Valid @RequestBody BatchExtractionRequest request) {
         List<BatchExtractionItemResult> results = new ArrayList<>();
 
-        boolean async = request.asyncProcessing() != null ? request.asyncProcessing() : true;
+        boolean async = request.asyncProcessing() != null ? request.asyncProcessing() : Boolean.TRUE;
 
         for (UUID paperUuid : request.paperIds()) {
             String paperId = paperUuid.toString();
             try {
-                // If already extracted, skip
                 Boolean alreadyExtracted = extractionService.isPaperExtracted(paperId);
                 if (Boolean.TRUE.equals(alreadyExtracted)) {
                     results.add(BatchExtractionItemResult.skippedAlreadyExtracted(paperId));
                     continue;
                 }
 
-                // If currently processing, skip triggering again
                 String status = extractionService.getExtractionStatusOnly(paperId);
                 if (status != null && ("PROCESSING".equalsIgnoreCase(status) || "PENDING".equalsIgnoreCase(status))) {
                     results.add(BatchExtractionItemResult.skippedInProgress(paperId, status));
                     continue;
                 }
 
-                // Trigger extraction with default options (all true), async as requested
-                ExtractionResponse resp = extractionService.triggerExtraction(new ExtractionRequest(
-                        paperId,
-                        null, // extractText (default true)
-                        null, // extractFigures (default true)
-                        null, // extractTables (default true)
-                        null, // extractEquations (default true)
-                        null, // extractCode (default true)
-                        null, // extractReferences (default true)
-                        null, // useOcr (default true)
-                        null, // detectEntities (default true)
-                        async // asyncProcessing
-                        ));
+                ExtractionResponse resp = extractionService.triggerExtraction(
+                        new ExtractionRequest(paperId, null, null, null, null, null, null, null, null, async));
 
                 results.add(BatchExtractionItemResult.triggered(paperId, resp.jobId(), resp.status(), resp.message()));
             } catch (Exception e) {
@@ -102,20 +99,22 @@ public class LatexExtractionController {
                 body));
     }
 
-    // -------- DTOs --------
-
+    /**
+     * Request DTO for batch extraction trigger containing paper IDs and processing
+     * options.
+     */
     @Schema(description = "Batch extraction trigger request")
     public record BatchExtractionRequest(
             @NotEmpty(message = "paperIds cannot be empty") List<@NotNull UUID> paperIds,
-            @Schema(description = "Process asynchronously", example = "true") Boolean asyncProcessing) {}
+            @Schema(description = "Process asynchronously", example = "true") Boolean asyncProcessing) {
+    }
 
+    /**
+     * Result item for individual paper extraction in batch operation.
+     */
     @Schema(description = "Per-paper batch extraction result item")
     public record BatchExtractionItemResult(
-            String paperId,
-            String action, // TRIGGERED | SKIPPED_ALREADY_EXTRACTED | SKIPPED_IN_PROGRESS | ERROR
-            String status, // initial known status if any
-            String jobId,
-            String message) {
+            String paperId, String action, String status, String jobId, String message) {
         public static BatchExtractionItemResult skippedAlreadyExtracted(String paperId) {
             return new BatchExtractionItemResult(
                     paperId, "SKIPPED_ALREADY_EXTRACTED", "COMPLETED", null, "Already extracted");
@@ -135,6 +134,11 @@ public class LatexExtractionController {
         }
     }
 
+    /**
+     * Response DTO for batch extraction containing summary statistics and
+     * individual
+     * results.
+     */
     @Schema(description = "Batch extraction response with summary")
     public record BatchExtractionResponse(
             int total,
@@ -150,10 +154,14 @@ public class LatexExtractionController {
             int skippedInProgress = 0;
             int errors = 0;
             for (BatchExtractionItemResult i : items) {
-                if ("TRIGGERED".equals(i.action())) triggered++;
-                else if ("SKIPPED_ALREADY_EXTRACTED".equals(i.action())) skippedExtracted++;
-                else if ("SKIPPED_IN_PROGRESS".equals(i.action())) skippedInProgress++;
-                else if ("ERROR".equals(i.action())) errors++;
+                if ("TRIGGERED".equals(i.action()))
+                    triggered++;
+                else if ("SKIPPED_ALREADY_EXTRACTED".equals(i.action()))
+                    skippedExtracted++;
+                else if ("SKIPPED_IN_PROGRESS".equals(i.action()))
+                    skippedInProgress++;
+                else if ("ERROR".equals(i.action()))
+                    errors++;
             }
             return new BatchExtractionResponse(
                     items.size(), triggered, skippedExtracted, skippedInProgress, errors, items);

@@ -7,5 +7,4 @@ import org.springframework.context.annotation.Configuration;
  * Currently not needed as CORS is handled by the API Gateway.
  */
 @Configuration
-public class CitationCorsConfig {
-}
+public class CitationCorsConfig {}
