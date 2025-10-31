@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class ChatResponse {
     private String sessionId;
     private String response;
-    private String timestamp; 
+    private String timestamp;
     private boolean success;
     private String error;
     private ChatContext context;

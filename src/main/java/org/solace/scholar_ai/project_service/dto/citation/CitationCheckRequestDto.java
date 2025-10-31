@@ -17,14 +17,14 @@ public class CitationCheckRequestDto {
 
     private UUID documentId;
 
-    private List<UUID> selectedPaperIds; 
-    private String content; 
+    private List<UUID> selectedPaperIds;
+    private String content;
 
-    private String filename; 
+    private String filename;
 
-    private String contentHash; 
+    private String contentHash;
 
-    private Boolean forceRecheck; 
+    private Boolean forceRecheck;
 
     private Options options;
 
@@ -35,21 +35,21 @@ public class CitationCheckRequestDto {
     public static class Options {
 
         @Builder.Default
-        private Boolean checkLocal = true; 
+        private Boolean checkLocal = true;
 
         @Builder.Default
-        private Boolean checkWeb = true; 
+        private Boolean checkWeb = true;
 
         @Builder.Default
-        private Double similarityThreshold = 0.85; 
+        private Double similarityThreshold = 0.85;
 
         @Builder.Default
-        private Double plagiarismThreshold = 0.92; 
+        private Double plagiarismThreshold = 0.92;
 
         @Builder.Default
-        private Integer maxEvidencePerIssue = 5; 
+        private Integer maxEvidencePerIssue = 5;
 
         @Builder.Default
-        private Boolean strictMode = true; 
+        private Boolean strictMode = true;
     }
 }

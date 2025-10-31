@@ -20,7 +20,7 @@ public record ExtractionCompletedEvent(
         // Processing metadata
         Double processingTime,
         Double extractionCoverage,
-        String confidenceScores, 
-        String errors, 
-        String warnings, 
+        String confidenceScores,
+        String errors,
+        String warnings,
         @NotNull Instant completedAt) {}

@@ -23,11 +23,11 @@ public class CitationCheckResponseDto {
 
     private String status; // QUEUED, RUNNING, DONE, ERROR
 
-    private String currentStep; 
+    private String currentStep;
 
     private Integer progressPercent; // 0-100
 
-    private String message; 
+    private String message;
 
     private LocalDateTime createdAt;
 
@@ -37,7 +37,7 @@ public class CitationCheckResponseDto {
 
     private CitationSummaryDto summary; // Normalized summary
 
-    private List<CitationIssueDto> issues; 
+    private List<CitationIssueDto> issues;
 
     @Data
     @Builder
@@ -47,37 +47,37 @@ public class CitationCheckResponseDto {
 
         private UUID id;
 
-        private UUID projectId; 
+        private UUID projectId;
 
-        private UUID documentId; 
+        private UUID documentId;
 
-        private String filename; 
+        private String filename;
 
-        private String issueType; 
+        private String issueType;
 
         private String severity; // low, medium, high
 
-        private String citationText; 
+        private String citationText;
 
-        private Integer position; 
+        private Integer position;
 
-        private Integer length; 
+        private Integer length;
 
-        private Integer lineStart; 
+        private Integer lineStart;
 
-        private Integer lineEnd; 
+        private Integer lineEnd;
 
-        private String message; 
+        private String message;
 
-        private List<String> citedKeys; 
+        private List<String> citedKeys;
 
-        private List<SuggestionDto> suggestions; 
+        private List<SuggestionDto> suggestions;
 
-        private Boolean resolved; 
+        private Boolean resolved;
 
-        private String createdAt; 
+        private String createdAt;
 
-        private List<EvidenceDto> evidence; 
+        private List<EvidenceDto> evidence;
 
         @Data
         @Builder
@@ -112,15 +112,15 @@ public class CitationCheckResponseDto {
 
             private UUID id;
 
-            private Map<String, Object> source; 
+            private Map<String, Object> source;
 
-            private String matchedText; 
+            private String matchedText;
 
             private Double similarity; // 0-1 similarity score
 
             private Double supportScore; // 0-1 support confidence
 
-            private String extractedContext; 
+            private String extractedContext;
         }
     }
 }

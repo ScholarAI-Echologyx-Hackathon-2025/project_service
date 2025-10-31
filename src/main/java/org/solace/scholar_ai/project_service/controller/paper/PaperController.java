@@ -33,12 +33,15 @@ public class PaperController {
      * @param paperId The ID of the paper
      * @return ResponseEntity containing structured facts about the paper
      */
-    @Operation(summary = "Get structured facts for a paper", description = "Retrieves structured facts including title, authors, and basic information for a paper")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Paper facts retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Paper not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @Operation(
+            summary = "Get structured facts for a paper",
+            description = "Retrieves structured facts including title, authors, and basic information for a paper")
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "200", description = "Paper facts retrieved successfully"),
+                @ApiResponse(responseCode = "404", description = "Paper not found"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
     @GetMapping("/{paperId}/structured-facts")
     public ResponseEntity<Map<String, Object>> getStructuredFacts(
             @Parameter(description = "Paper ID", required = true) @PathVariable String paperId) {

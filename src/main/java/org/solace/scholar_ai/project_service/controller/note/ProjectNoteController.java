@@ -477,8 +477,8 @@ public class ProjectNoteController {
         try {
             log.info("Generate AI content for project {} with prompt: {}", projectId, request.prompt());
 
-            String generatedContent = aiContentService.generateNoteContent(request.prompt(), request.context(),
-                    projectId);
+            String generatedContent =
+                    aiContentService.generateNoteContent(request.prompt(), request.context(), projectId);
 
             AIContentResponseDto response = new AIContentResponseDto(generatedContent, "success", null);
 
@@ -491,8 +491,8 @@ public class ProjectNoteController {
                     .body(APIResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage(), errorResponse));
         } catch (Exception e) {
             log.error("Unexpected error generating AI content for project {}: {}", projectId, e.getMessage());
-            AIContentResponseDto errorResponse = new AIContentResponseDto(null, "error",
-                    "Failed to generate AI content");
+            AIContentResponseDto errorResponse =
+                    new AIContentResponseDto(null, "error", "Failed to generate AI content");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(APIResponse.error(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to generate AI content", errorResponse));
